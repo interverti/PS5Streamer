@@ -5,15 +5,16 @@ struct PS5StreamerApp: App {
     @StateObject private var appState = AppState()
 
     var body: some Scene {
-        WindowGroup {
+        MenuBarExtra {
             ContentView()
                 .environmentObject(appState)
-                .onDisappear { appState.stop() }
+        } label: {
+            // Icon reflects running state
+            Image(systemName: appState.isRunning
+                  ? "dot.radiowaves.left.and.right"
+                  : "dot.radiowaves.left.and.right")
+            .symbolRenderingMode(.hierarchical)
         }
-        .windowResizability(.contentSize)
-        .commands {
-            // Remove File > New Window — single window app
-            CommandGroup(replacing: .newItem) {}
-        }
+        .menuBarExtraStyle(.window)
     }
 }
