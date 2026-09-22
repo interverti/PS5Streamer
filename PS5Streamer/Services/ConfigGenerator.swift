@@ -19,7 +19,7 @@ struct ConfigGenerator {
     // MARK: - nginx.conf
 
     private func nginxConfig() -> String {
-        """
+        return """
         worker_processes 1;
         error_log \(Paths.nginxErrLog) warn;
         pid       \(Paths.nginxPid);
@@ -38,10 +38,8 @@ struct ConfigGenerator {
                     record off;
                     sync 10ms;
                     on_publish http://127.0.0.1:9988/on_publish;
-
                     # push rtmp://live.twitch.tv/app/YOUR_TWITCH_KEY;
                     # push rtmp://a.rtmp.youtube.com/live2/YOUR_YT_KEY;
-                    # push rtmp://ingest.pscp.tv:80/x/YOUR_X_KEY;
                 }
 
                 application live2 {

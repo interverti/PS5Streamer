@@ -2,39 +2,35 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var state: AppState
-    @State private var copiedOBS = false
     @State private var isStarting = false
 
     var body: some View {
         VStack(spacing: 0) {
-            headerSection
+            header
             Divider()
-            statusSection
+            services
             Divider()
-            dnsSection
+            dnsInfo
             Divider()
-            obsURLSection
+            urlSection
             Divider()
             logSection
+            Divider()
+            footer
         }
-        .frame(width: 440)
-        .background(Color(NSColor.windowBackgroundColor))
+        .frame(width: 340)
+        .background(.ultraThinMaterial)
     }
 
     // MARK: - Header
 
-    var headerSection: some View {
+    var header: some View {
         HStack(spacing: 10) {
             Image(systemName: "dot.radiowaves.left.and.right")
-                .font(.title2)
+                .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(.purple)
-            VStack(alignment: .leading, spacing: 1) {
-                Text("PS5 Stream Interceptor")
-                    .font(.headline)
-                Text("RTMP → nginx → OBS")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+            Text("PS5 Streamer")
+                .font(.system(size: 15, weight: .semibold))
             Spacer()
             Button {
                 Task {
@@ -48,152 +44,151 @@ struct ContentView: View {
                 }
             } label: {
                 if isStarting {
-                    ProgressView().controlSize(.small)
+                    ProgressView().controlSize(.small).frame(width: 52)
                 } else {
-                    Text(state.isRunning ? "Stop" : "Start")
+                    Text(state.isRunning ? "Stop" : "Start").frame(width: 52)
                 }
             }
             .buttonStyle(.borderedProminent)
             .tint(state.isRunning ? .red : .purple)
+            .controlSize(.regular)
             .disabled(isStarting)
-            .frame(width: 70)
         }
-        .padding()
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
     }
 
-    // MARK: - Service Status
+    // MARK: - Services
 
-    var statusSection: some View {
-        HStack(spacing: 32) {
-            StatusDot(label: "RTMP :1935", status: state.rtmpStatus)
-            StatusDot(label: "DNS  :53",   status: state.dnsStatus)
+    var services: some View {
+        HStack(spacing: 20) {
+            statusDot(label: "RTMP :1935", status: state.rtmpStatus)
+            statusDot(label: "DNS :53",    status: state.dnsStatus)
             Spacer()
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 14)
         .padding(.vertical, 10)
     }
 
-    // MARK: - PS5 DNS Instructions
-
-    var dnsSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label("Set on PS5 → Settings → Network → Advanced → DNS", systemImage: "network")
-                .font(.caption)
+    func statusDot(label: String, status: ServiceStatus) -> some View {
+        HStack(spacing: 6) {
+            Circle()
+                .fill(color(for: status))
+                .frame(width: 8, height: 8)
+                .shadow(color: color(for: status).opacity(status == .running ? 0.8 : 0), radius: 4)
+            Text(label)
+                .font(.system(size: 12, design: .monospaced))
                 .foregroundStyle(.secondary)
-
-            HStack(spacing: 24) {
-                dnsRow(label: "Primary",   value: state.localIP)
-                dnsRow(label: "Secondary", value: "1.1.1.1")
-            }
         }
-        .padding()
     }
 
-    func dnsRow(label: String, value: String) -> some View {
+    // MARK: - DNS Info
+
+    var dnsInfo: some View {
+        HStack {
+            dnsField(label: "PS5 DNS", value: state.localIP)
+            Spacer()
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+    }
+
+    func dnsField(label: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(label)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+                .font(.system(size: 10))
+                .foregroundStyle(.tertiary)
             Text(value)
-                .fontDesign(.monospaced)
-                .font(.system(size: 14, weight: .medium))
+                .font(.system(size: 13, design: .monospaced, weight: .medium))
                 .textSelection(.enabled)
         }
     }
 
-    // MARK: - OBS URL
+    // MARK: - URL
 
-    var obsURLSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label("OBS → Sources → Media Source → uncheck Local File → paste URL", systemImage: "tv")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+    var urlSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("mpv URL")
+                .font(.system(size: 10))
+                .foregroundStyle(.tertiary)
 
             if state.streamKey != nil {
                 HStack(spacing: 8) {
                     Text(state.obsURL)
-                        .fontDesign(.monospaced)
-                        .font(.system(size: 11))
+                        .font(.system(size: 11, design: .monospaced))
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .textSelection(.enabled)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 6)
-                        .background(Color(NSColor.controlBackgroundColor))
-                        .cornerRadius(6)
-
-                    Button(copiedOBS ? "✓" : "Copy") {
+                    Spacer()
+                    Button("Copy") {
                         NSPasteboard.general.clearContents()
                         NSPasteboard.general.setString(state.obsURL, forType: .string)
-                        copiedOBS = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { copiedOBS = false }
                     }
                     .buttonStyle(.bordered)
-                    .frame(width: 55)
+                    .controlSize(.small)
                 }
             } else {
-                Text(state.isRunning ? "⏳ Waiting for PS5 to go live…" : "Start intercepting first")
-                    .foregroundStyle(.secondary)
+                Text(state.isRunning ? "Waiting for PS5…" : "Start to get URL")
                     .font(.system(size: 12))
-                    .padding(.vertical, 4)
+                    .foregroundStyle(.tertiary)
             }
         }
-        .padding()
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // MARK: - Log
 
     var logSection: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Label("Log", systemImage: "terminal")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Text("Log")
+                    .font(.system(size: 10))
+                    .foregroundStyle(.tertiary)
                 Spacer()
                 Button("Clear") { state.logs.removeAll() }
-                    .font(.caption)
+                    .font(.system(size: 11))
                     .buttonStyle(.plain)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.tertiary)
             }
-            .padding(.horizontal)
-            .padding(.top, 8)
 
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 2) {
+                LazyVStack(alignment: .leading, spacing: 3) {
                     ForEach(state.logs, id: \.self) { line in
                         Text(line)
-                            .font(.system(size: 10, design: .monospaced))
+                            .font(.system(size: 12, design: .monospaced))
                             .foregroundStyle(.secondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
-                .padding(.horizontal)
-                .padding(.bottom, 8)
             }
-            .frame(height: 110)
+            .frame(height: 100)
         }
-    }
-}
-
-// MARK: - StatusDot
-
-struct StatusDot: View {
-    let label: String
-    let status: ServiceStatus
-
-    var body: some View {
-        HStack(spacing: 6) {
-            Circle()
-                .fill(color)
-                .frame(width: 8, height: 8)
-                .shadow(color: color.opacity(status == .running ? 0.7 : 0), radius: 4)
-            Text(label)
-                .font(.system(size: 12, design: .monospaced))
-                .foregroundStyle(status == .running ? .primary : .secondary)
-        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
     }
 
-    var color: Color {
+    // MARK: - Footer
+
+    var footer: some View {
+        HStack {
+            Spacer()
+            Button("Quit") {
+                state.stop()
+                NSApplication.shared.terminate(nil)
+            }
+            .buttonStyle(.plain)
+            .font(.system(size: 12))
+            .foregroundStyle(.tertiary)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+    }
+
+    // MARK: - Helpers
+
+    func color(for status: ServiceStatus) -> Color {
         switch status {
         case .stopped:  return .gray
         case .starting: return .yellow
@@ -204,6 +199,5 @@ struct StatusDot: View {
 }
 
 #Preview {
-    ContentView()
-        .environmentObject(AppState())
+    ContentView().environmentObject(AppState())
 }

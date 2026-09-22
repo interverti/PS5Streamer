@@ -7,8 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0D1231F7FE0111CFA6D85002 /* libssl.3.dylib in Resources */ = {isa = PBXBuildFile; fileRef = A3AF93ED746FF2E0D0891D1E /* libssl.3.dylib */; };
 		0D3CEFFFC0B19063629F3535 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95765536175B80042FC8620 /* AppState.swift */; };
+		16884944C8F64F27DDBA6C3E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 615FD9AAF90736CD9359C820 /* Assets.xcassets */; };
 		1E2BAA7709C2FBD962524D9B /* ConfigGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0191CAF8099066E1BA565B /* ConfigGenerator.swift */; };
+		383B9BFCCBDDE20C8DB4CA66 /* libpcre2-8.0.dylib in Resources */ = {isa = PBXBuildFile; fileRef = DE3A902EAA9272BCAF542003 /* libpcre2-8.0.dylib */; };
+		421B28D266E622595C447A1E /* libcrypto.3.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 3DFBDA5208002FAC7BAAAAA8 /* libcrypto.3.dylib */; };
 		5CF5340EBF43E09EFD7C4349 /* Paths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 287F3F272069D215CFCD4B8D /* Paths.swift */; };
 		BD2103A88E9A5ADF9E89A865 /* StreamKeyServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D6F01539FD873F2A080F9B /* StreamKeyServer.swift */; };
 		DB160417700A6C0FDD40E20B /* ProcessManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD3E22E11D95E5D995E49D33 /* ProcessManager.swift */; };
@@ -20,12 +24,18 @@
 /* Begin PBXFileReference section */
 		01D6F01539FD873F2A080F9B /* StreamKeyServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamKeyServer.swift; sourceTree = "<group>"; };
 		287F3F272069D215CFCD4B8D /* Paths.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Paths.swift; sourceTree = "<group>"; };
+		2EFE61C4F6723E3F47A87673 /* dnsmasq */ = {isa = PBXFileReference; path = dnsmasq; sourceTree = "<group>"; };
+		3D790F656D9284EAFD11A6BB /* nginx */ = {isa = PBXFileReference; path = nginx; sourceTree = "<group>"; };
+		3DFBDA5208002FAC7BAAAAA8 /* libcrypto.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libcrypto.3.dylib; sourceTree = "<group>"; };
 		4108CE7DC422484D23487107 /* PS5Streamer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PS5Streamer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		615FD9AAF90736CD9359C820 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6A0191CAF8099066E1BA565B /* ConfigGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigGenerator.swift; sourceTree = "<group>"; };
 		6ED951ACCBC6EC00F65CA500 /* PS5Streamer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PS5Streamer.entitlements; sourceTree = "<group>"; };
+		A3AF93ED746FF2E0D0891D1E /* libssl.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libssl.3.dylib; sourceTree = "<group>"; };
 		CAE28A50365C16A329D83831 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D44FFE41DCE59A5C27E3C95D /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 		DD3E22E11D95E5D995E49D33 /* ProcessManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessManager.swift; sourceTree = "<group>"; };
+		DE3A902EAA9272BCAF542003 /* libpcre2-8.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = "libpcre2-8.0.dylib"; sourceTree = "<group>"; };
 		E9016C0BFEED413BF9CC363F /* PS5StreamerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PS5StreamerApp.swift; sourceTree = "<group>"; };
 		F95765536175B80042FC8620 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -39,6 +49,16 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		46D5F7D1A80604700C080DD9 /* Binaries */ = {
+			isa = PBXGroup;
+			children = (
+				2EFE61C4F6723E3F47A87673 /* dnsmasq */,
+				3D790F656D9284EAFD11A6BB /* nginx */,
+				9B6E4BE786F90EAEFC3C49B5 /* libs */,
+			);
+			path = Binaries;
+			sourceTree = "<group>";
+		};
 		7F6A43F21F11AFCF96C9540F = {
 			isa = PBXGroup;
 			children = (
@@ -47,12 +67,24 @@
 			);
 			sourceTree = "<group>";
 		};
+		9B6E4BE786F90EAEFC3C49B5 /* libs */ = {
+			isa = PBXGroup;
+			children = (
+				3DFBDA5208002FAC7BAAAAA8 /* libcrypto.3.dylib */,
+				DE3A902EAA9272BCAF542003 /* libpcre2-8.0.dylib */,
+				A3AF93ED746FF2E0D0891D1E /* libssl.3.dylib */,
+			);
+			path = libs;
+			sourceTree = "<group>";
+		};
 		B0F8B4F4C3F65AFC1E2D28A4 /* PS5Streamer */ = {
 			isa = PBXGroup;
 			children = (
+				615FD9AAF90736CD9359C820 /* Assets.xcassets */,
 				6ED951ACCBC6EC00F65CA500 /* PS5Streamer.entitlements */,
 				E9016C0BFEED413BF9CC363F /* PS5StreamerApp.swift */,
 				158029142A97647DA223A820 /* Models */,
+				E55B5ABC7BED33AF8A3252A1 /* Resources */,
 				BED40A68A504C15B04BEE380 /* Services */,
 				F729DDAE48E56FF33E8B3BF0 /* Views */,
 			);
@@ -79,6 +111,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		E55B5ABC7BED33AF8A3252A1 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				46D5F7D1A80604700C080DD9 /* Binaries */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		F729DDAE48E56FF33E8B3BF0 /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -95,6 +135,7 @@
 			buildConfigurationList = D07F87160914CBCB1A5098D1 /* Build configuration list for PBXNativeTarget "PS5Streamer" */;
 			buildPhases = (
 				0179C14BBB9390CE515E4015 /* Sources */,
+				C23881EA02EE68FE8307466B /* Resources */,
 			);
 			buildRules = (
 			);
@@ -139,6 +180,20 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C23881EA02EE68FE8307466B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				16884944C8F64F27DDBA6C3E /* Assets.xcassets in Resources */,
+				421B28D266E622595C447A1E /* libcrypto.3.dylib in Resources */,
+				383B9BFCCBDDE20C8DB4CA66 /* libpcre2-8.0.dylib in Resources */,
+				0D1231F7FE0111CFA6D85002 /* libssl.3.dylib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		0179C14BBB9390CE515E4015 /* Sources */ = {

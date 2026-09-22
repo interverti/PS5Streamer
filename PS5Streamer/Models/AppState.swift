@@ -108,13 +108,12 @@ final class AppState: ObservableObject {
 
     // MARK: - Derived
 
-    /// nginx-rtmp URL for OBS — app name is detected from on_publish callback
     var obsURL: String {
         guard let key = streamKey else { return "" }
-        // Twitch pushes to /app/<key>, YouTube to /live2/<key>
-        // StreamKeyServer captures the app name too
         return "rtmp://127.0.0.1/\(streamApp)/\(key)"
     }
+
+
 
     /// The RTMP application name ("app" for Twitch, "live2" for YouTube)
     var streamApp: String = "app"

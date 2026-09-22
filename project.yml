@@ -10,6 +10,10 @@ targets:
     platform: macOS
     sources:
       - path: PS5Streamer
+    resources:
+      - path: PS5Streamer/Resources/Binaries
+        buildPhase: resources
+        type: folder
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.ps5streamer.app
@@ -22,6 +26,7 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_NSHumanReadableCopyright: ""
         INFOPLIST_KEY_CFBundleDisplayName: PS5 Streamer
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         INFOPLIST_KEY_NSAppleEventsUsageDescription: "Required to run dnsmasq with administrator privileges for DNS interception."
         INFOPLIST_KEY_LSUIElement: YES
         # Needed for NSAppleScript (admin privilege prompts)
