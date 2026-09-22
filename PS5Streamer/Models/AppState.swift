@@ -92,7 +92,7 @@ final class AppState: ObservableObject {
         }
 
         isRunning = true
-        log("🚀 Ready — broadcast from PS5 to YouTube")
+        log("🚀 Ready — broadcast from PS5 via Twitch")
     }
 
     func stop() {

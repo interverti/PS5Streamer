@@ -39,7 +39,6 @@ struct ConfigGenerator {
                     sync 10ms;
                     on_publish http://127.0.0.1:9988/on_publish;
                     # push rtmp://live.twitch.tv/app/YOUR_TWITCH_KEY;
-                    # push rtmp://a.rtmp.youtube.com/live2/YOUR_YT_KEY;
                 }
 
                 application live2 {
@@ -75,8 +74,6 @@ struct ConfigGenerator {
             "live-jfk.twitch.tv",
             "live-lax.twitch.tv",
             "live-sea.twitch.tv",
-            "a.rtmp.youtube.com",
-            "b.rtmp.youtube.com",
         ]
 
         let addressLines = ingestHosts

@@ -10,10 +10,7 @@ targets:
     platform: macOS
     sources:
       - path: PS5Streamer
-    resources:
-      - path: PS5Streamer/Resources/Binaries
-        buildPhase: resources
-        type: folder
+
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.ps5streamer.app

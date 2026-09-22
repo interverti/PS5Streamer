@@ -131,15 +131,21 @@ final class ProcessManager {
     // MARK: - Binary resolution
 
     private func resolveNginxBin() -> String? {
-        if let b = Bundle.main.path(forResource: "nginx", ofType: nil, inDirectory: "Binaries") { return b }
-        return ["/opt/homebrew/bin/nginx", "/usr/local/bin/nginx"]
-            .first { FileManager.default.fileExists(atPath: $0) }
+        let candidates = [
+            Bundle.main.resourcePath.map { "\($0)/Binaries/nginx" },
+            Optional("/opt/homebrew/bin/nginx"),
+            Optional("/usr/local/bin/nginx"),
+        ].compactMap { $0 }
+        return candidates.first { FileManager.default.fileExists(atPath: $0) }
     }
 
     private func resolveDnsmasqBin() -> String? {
-        if let b = Bundle.main.path(forResource: "dnsmasq", ofType: nil, inDirectory: "Binaries") { return b }
-        return ["/opt/homebrew/sbin/dnsmasq", "/usr/local/sbin/dnsmasq"]
-            .first { FileManager.default.fileExists(atPath: $0) }
+        let candidates = [
+            Bundle.main.resourcePath.map { "\($0)/Binaries/dnsmasq" },
+            Optional("/opt/homebrew/sbin/dnsmasq"),
+            Optional("/usr/local/sbin/dnsmasq"),
+        ].compactMap { $0 }
+        return candidates.first { FileManager.default.fileExists(atPath: $0) }
     }
 
     // MARK: - dnsmasq LaunchDaemon plist

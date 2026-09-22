@@ -8,20 +8,17 @@ func makeIcon(size: CGFloat) -> NSImage {
         let s = size
         let cs = CGColorSpaceCreateDeviceRGB()
 
-        // Rounded rect clip
-        let path = CGPath(roundedRect: CGRect(x: 0, y: 0, width: s, height: s),
-                          cornerWidth: s * 0.22, cornerHeight: s * 0.22, transform: nil)
-        ctx.addPath(path)
-        ctx.clip()
+        // Fill full square — macOS applies squircle clipping automatically
+        ctx.fill(CGRect(x: 0, y: 0, width: s, height: s))
 
         // Purple gradient background
         let colors = [CGColor(red: 0.45, green: 0.20, blue: 0.90, alpha: 1),
                       CGColor(red: 0.15, green: 0.05, blue: 0.45, alpha: 1)] as CFArray
         let gradient = CGGradient(colorsSpace: cs, colors: colors, locations: [0, 1])!
         ctx.drawLinearGradient(gradient,
-            start: CGPoint(x: s * 0.3, y: s),
-            end:   CGPoint(x: s * 0.7, y: 0),
-            options: [])
+            start: CGPoint(x: s / 2, y: s),
+            end:   CGPoint(x: s / 2, y: 0),
+            options: [.drawsBeforeStartLocation, .drawsAfterEndLocation])
 
         // SF Symbol centered, tinted white
         let config = NSImage.SymbolConfiguration(pointSize: s * 0.52, weight: .medium)
