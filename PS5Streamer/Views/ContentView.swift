@@ -99,7 +99,7 @@ struct ContentView: View {
                 .font(.system(size: 10))
                 .foregroundStyle(.tertiary)
             Text(value)
-                .font(.system(size: 13, design: .monospaced, weight: .medium))
+                .font(.system(size: 13, weight: .medium, design: .monospaced))
                 .textSelection(.enabled)
         }
     }
