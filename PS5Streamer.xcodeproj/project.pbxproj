@@ -1,0 +1,353 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0D3CEFFFC0B19063629F3535 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95765536175B80042FC8620 /* AppState.swift */; };
+		1E2BAA7709C2FBD962524D9B /* ConfigGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0191CAF8099066E1BA565B /* ConfigGenerator.swift */; };
+		5CF5340EBF43E09EFD7C4349 /* Paths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 287F3F272069D215CFCD4B8D /* Paths.swift */; };
+		BD2103A88E9A5ADF9E89A865 /* StreamKeyServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D6F01539FD873F2A080F9B /* StreamKeyServer.swift */; };
+		DB160417700A6C0FDD40E20B /* ProcessManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD3E22E11D95E5D995E49D33 /* ProcessManager.swift */; };
+		E4278BD7B12EC94C146E73EB /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D44FFE41DCE59A5C27E3C95D /* NetworkService.swift */; };
+		E9266EE0EF1E2FDD2636DE9C /* PS5StreamerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9016C0BFEED413BF9CC363F /* PS5StreamerApp.swift */; };
+		F9DA3B406B83FF5D0A282CCB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAE28A50365C16A329D83831 /* ContentView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		01D6F01539FD873F2A080F9B /* StreamKeyServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamKeyServer.swift; sourceTree = "<group>"; };
+		287F3F272069D215CFCD4B8D /* Paths.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Paths.swift; sourceTree = "<group>"; };
+		4108CE7DC422484D23487107 /* PS5Streamer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PS5Streamer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6A0191CAF8099066E1BA565B /* ConfigGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigGenerator.swift; sourceTree = "<group>"; };
+		6ED951ACCBC6EC00F65CA500 /* PS5Streamer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PS5Streamer.entitlements; sourceTree = "<group>"; };
+		CAE28A50365C16A329D83831 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		D44FFE41DCE59A5C27E3C95D /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
+		DD3E22E11D95E5D995E49D33 /* ProcessManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessManager.swift; sourceTree = "<group>"; };
+		E9016C0BFEED413BF9CC363F /* PS5StreamerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PS5StreamerApp.swift; sourceTree = "<group>"; };
+		F95765536175B80042FC8620 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		158029142A97647DA223A820 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				F95765536175B80042FC8620 /* AppState.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		7F6A43F21F11AFCF96C9540F = {
+			isa = PBXGroup;
+			children = (
+				B0F8B4F4C3F65AFC1E2D28A4 /* PS5Streamer */,
+				C750DFE6A0E599458854AF18 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B0F8B4F4C3F65AFC1E2D28A4 /* PS5Streamer */ = {
+			isa = PBXGroup;
+			children = (
+				6ED951ACCBC6EC00F65CA500 /* PS5Streamer.entitlements */,
+				E9016C0BFEED413BF9CC363F /* PS5StreamerApp.swift */,
+				158029142A97647DA223A820 /* Models */,
+				BED40A68A504C15B04BEE380 /* Services */,
+				F729DDAE48E56FF33E8B3BF0 /* Views */,
+			);
+			path = PS5Streamer;
+			sourceTree = "<group>";
+		};
+		BED40A68A504C15B04BEE380 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				6A0191CAF8099066E1BA565B /* ConfigGenerator.swift */,
+				D44FFE41DCE59A5C27E3C95D /* NetworkService.swift */,
+				287F3F272069D215CFCD4B8D /* Paths.swift */,
+				DD3E22E11D95E5D995E49D33 /* ProcessManager.swift */,
+				01D6F01539FD873F2A080F9B /* StreamKeyServer.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		C750DFE6A0E599458854AF18 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4108CE7DC422484D23487107 /* PS5Streamer.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F729DDAE48E56FF33E8B3BF0 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				CAE28A50365C16A329D83831 /* ContentView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C863D82E6DA974E9596D9877 /* PS5Streamer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D07F87160914CBCB1A5098D1 /* Build configuration list for PBXNativeTarget "PS5Streamer" */;
+			buildPhases = (
+				0179C14BBB9390CE515E4015 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PS5Streamer;
+			packageProductDependencies = (
+			);
+			productName = PS5Streamer;
+			productReference = 4108CE7DC422484D23487107 /* PS5Streamer.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		64AE6D42E77145AB913B4A15 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					C863D82E6DA974E9596D9877 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 673D9131264A1583A01B3A09 /* Build configuration list for PBXProject "PS5Streamer" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 7F6A43F21F11AFCF96C9540F;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = C750DFE6A0E599458854AF18 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C863D82E6DA974E9596D9877 /* PS5Streamer */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0179C14BBB9390CE515E4015 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0D3CEFFFC0B19063629F3535 /* AppState.swift in Sources */,
+				1E2BAA7709C2FBD962524D9B /* ConfigGenerator.swift in Sources */,
+				F9DA3B406B83FF5D0A282CCB /* ContentView.swift in Sources */,
+				E4278BD7B12EC94C146E73EB /* NetworkService.swift in Sources */,
+				E9266EE0EF1E2FDD2636DE9C /* PS5StreamerApp.swift in Sources */,
+				5CF5340EBF43E09EFD7C4349 /* Paths.swift in Sources */,
+				DB160417700A6C0FDD40E20B /* ProcessManager.swift in Sources */,
+				BD2103A88E9A5ADF9E89A865 /* StreamKeyServer.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		47D01D67C9642F4A2FD4218F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		52D0068C348B9D94871960D6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PS5Streamer/PS5Streamer.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "PS5 Streamer";
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Required to run dnsmasq with administrator privileges for DNS interception.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				OTHER_SWIFT_FLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ps5streamer.app;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		ABD920CDD9F198FCF5A71B3F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PS5Streamer/PS5Streamer.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "PS5 Streamer";
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Required to run dnsmasq with administrator privileges for DNS interception.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				OTHER_SWIFT_FLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ps5streamer.app;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		CC026083BA6CAAD57C54B8B2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		673D9131264A1583A01B3A09 /* Build configuration list for PBXProject "PS5Streamer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				47D01D67C9642F4A2FD4218F /* Debug */,
+				CC026083BA6CAAD57C54B8B2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D07F87160914CBCB1A5098D1 /* Build configuration list for PBXNativeTarget "PS5Streamer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ABD920CDD9F198FCF5A71B3F /* Debug */,
+				52D0068C348B9D94871960D6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 64AE6D42E77145AB913B4A15 /* Project object */;
+}

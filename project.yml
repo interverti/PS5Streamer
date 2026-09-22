@@ -1,0 +1,29 @@
+name: PS5Streamer
+options:
+  bundleIdPrefix: com.ps5streamer
+  deploymentTarget:
+    macOS: "13.0"
+
+targets:
+  PS5Streamer:
+    type: application
+    platform: macOS
+    sources:
+      - path: PS5Streamer
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ps5streamer.app
+        SWIFT_VERSION: "5.9"
+        MACOSX_DEPLOYMENT_TARGET: "13.0"
+        CODE_SIGN_STYLE: Automatic
+        # Disable sandbox — we need raw network + process spawning
+        CODE_SIGN_ENTITLEMENTS: PS5Streamer/PS5Streamer.entitlements
+        ENABLE_HARDENED_RUNTIME: YES
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_NSHumanReadableCopyright: ""
+        INFOPLIST_KEY_CFBundleDisplayName: PS5 Streamer
+        INFOPLIST_KEY_NSAppleEventsUsageDescription: "Required to run dnsmasq with administrator privileges for DNS interception."
+        # Needed for NSAppleScript (admin privilege prompts)
+        OTHER_SWIFT_FLAGS: ""
+    entitlements:
+      path: PS5Streamer/PS5Streamer.entitlements
