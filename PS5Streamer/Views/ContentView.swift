@@ -63,7 +63,7 @@ struct ContentView: View {
     var services: some View {
         HStack(spacing: 20) {
             statusDot(label: "RTMP :1935", status: state.rtmpStatus)
-            statusDot(label: "DNS :53",    status: state.dnsStatus)
+            statusDot(label: "DNS :53", status: state.dnsStatus)
             Spacer()
         }
         .padding(.horizontal, 14)
@@ -190,10 +190,10 @@ struct ContentView: View {
 
     func color(for status: ServiceStatus) -> Color {
         switch status {
-        case .stopped:  return .gray
+        case .stopped: return .gray
         case .starting: return .yellow
-        case .running:  return .green
-        case .error:    return .red
+        case .running: return .green
+        case .error: return .red
         }
     }
 }

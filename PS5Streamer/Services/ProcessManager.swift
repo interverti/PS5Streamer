@@ -1,5 +1,5 @@
-import Foundation
 import AppKit
+import Foundation
 
 // MARK: - Errors
 
@@ -16,9 +16,9 @@ enum ProcessManagerError: LocalizedError {
             return "nginx not found. Install: brew tap denji/nginx && brew install nginx-full"
         case .dnsmasqNotFound:
             return "dnsmasq not found. Install: brew install dnsmasq"
-        case .nginxFailed(let m):
+        case let .nginxFailed(m):
             return "nginx failed: \(m)"
-        case .dnsmasqFailed(let m):
+        case let .dnsmasqFailed(m):
             return "dnsmasq failed: \(m)"
         case .adminCancelled:
             return "Admin access required for DNS interception (port 53)."
@@ -29,7 +29,6 @@ enum ProcessManagerError: LocalizedError {
 // MARK: - ProcessManager
 
 final class ProcessManager {
-
     private var nginxProcess: Process?
 
     /// Called when nginx crashes unexpectedly after a successful start.
@@ -47,10 +46,10 @@ final class ProcessManager {
 
         let p = Process()
         p.executableURL = URL(fileURLWithPath: bin)
-        p.arguments     = ["-c", configPath, "-g", "daemon off;"]
+        p.arguments = ["-c", configPath, "-g", "daemon off;"]
 
         let pipe = Pipe()
-        p.standardError  = pipe
+        p.standardError = pipe
         p.standardOutput = pipe
 
         // Notify app if nginx crashes after a clean start
@@ -68,7 +67,7 @@ final class ProcessManager {
 
         if !p.isRunning {
             let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            let msg  = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "unknown"
+            let msg = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "unknown"
             throw ProcessManagerError.nginxFailed(msg)
         }
     }
@@ -83,7 +82,7 @@ final class ProcessManager {
     private func killStrayNginx(bin: String) {
         let p = Process()
         p.executableURL = URL(fileURLWithPath: "/usr/bin/pkill")
-        p.arguments     = ["-f", bin]
+        p.arguments = ["-f", bin]
         try? p.run()
         p.waitUntilExit()
         Thread.sleep(forTimeInterval: 0.3)
@@ -96,8 +95,8 @@ final class ProcessManager {
             throw ProcessManagerError.dnsmasqNotFound
         }
 
-        let plist    = buildDnsmasqPlist(bin: bin, configPath: configPath)
-        let tmpPlist  = Paths.dnsmasqPlist
+        let plist = buildDnsmasqPlist(bin: bin, configPath: configPath)
+        let tmpPlist = Paths.dnsmasqPlist
         let destPlist = "/Library/LaunchDaemons/com.ps5streamer.dnsmasq.plist"
 
         try plist.write(toFile: tmpPlist, atomically: true, encoding: .utf8)

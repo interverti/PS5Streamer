@@ -1,5 +1,5 @@
-import Foundation
 import Darwin
+import Foundation
 
 enum NetworkService {
     /// Returns the Mac's primary LAN IP (prefers en0/WiFi, falls back to en1/Ethernet).
@@ -29,8 +29,10 @@ enum NetworkService {
                 NI_NUMERICHOST
             )
             let ip = String(cString: host)
-            if name == "en0" { return ip }   // WiFi wins immediately
-            fallback = ip                    // Ethernet fallback
+            if name == "en0" {
+                return ip
+            } // WiFi wins immediately
+            fallback = ip // Ethernet fallback
         }
         return fallback
     }

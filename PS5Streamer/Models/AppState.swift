@@ -8,24 +8,24 @@ enum ServiceStatus: Equatable {
 
     var label: String {
         switch self {
-        case .stopped:       return "Stopped"
-        case .starting:      return "Starting…"
-        case .running:       return "Running"
-        case .error(let m):  return "Error: \(m)"
+        case .stopped: return "Stopped"
+        case .starting: return "Starting…"
+        case .running: return "Running"
+        case let .error(m): return "Error: \(m)"
         }
     }
 }
 
 @MainActor
 final class AppState: ObservableObject {
-    @Published var isRunning    = false
-    @Published var dnsStatus:  ServiceStatus = .stopped
+    @Published var isRunning = false
+    @Published var dnsStatus: ServiceStatus = .stopped
     @Published var rtmpStatus: ServiceStatus = .stopped
-    @Published var streamKey:  String?
-    @Published var localIP:    String = "Detecting…"
-    @Published var logs:       [String] = []
+    @Published var streamKey: String?
+    @Published var localIP: String = "Detecting…"
+    @Published var logs: [String] = []
 
-    private let processManager  = ProcessManager()
+    private let processManager = ProcessManager()
     private let configGenerator = ConfigGenerator()
     private var streamKeyServer: StreamKeyServer?
 
@@ -37,7 +37,7 @@ final class AppState: ObservableObject {
             Task { @MainActor [weak self] in
                 guard let self, self.isRunning else { return }
                 self.rtmpStatus = .error("nginx crashed")
-                self.streamKey  = nil
+                self.streamKey = nil
                 self.log("❌ nginx crashed — check \(Paths.nginxErrLog)")
                 self.log("ℹ️ Click Stop then Start to recover")
             }
@@ -99,10 +99,10 @@ final class AppState: ObservableObject {
         processManager.stopAll()
         streamKeyServer?.stop()
         streamKeyServer = nil
-        isRunning  = false
-        dnsStatus  = .stopped
+        isRunning = false
+        dnsStatus = .stopped
         rtmpStatus = .stopped
-        streamKey  = nil
+        streamKey = nil
         log("⏹ Stopped — all services cleaned up")
     }
 
@@ -113,8 +113,6 @@ final class AppState: ObservableObject {
         return "rtmp://127.0.0.1/\(streamApp)/\(key)"
     }
 
-
-
     /// The RTMP application name ("app" for Twitch, "live2" for YouTube)
     var streamApp: String = "app"
 
@@ -123,6 +121,8 @@ final class AppState: ObservableObject {
     private func log(_ message: String) {
         let ts = DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium)
         logs.insert("[\(ts)] \(message)", at: 0)
-        if logs.count > 200 { logs.removeLast() }
+        if logs.count > 200 {
+            logs.removeLast()
+        }
     }
 }

@@ -37,8 +37,8 @@ final class StreamKeyServer {
 
         listener?.stateUpdateHandler = { state in
             switch state {
-            case .ready:   print("StreamKeyServer: listening on :9988")
-            case .failed(let e): print("StreamKeyServer: failed — \(e)")
+            case .ready: print("StreamKeyServer: listening on :9988")
+            case let .failed(e): print("StreamKeyServer: failed — \(e)")
             default: break
             }
         }
@@ -57,7 +57,7 @@ final class StreamKeyServer {
         connection.start(queue: queue)
 
         // Receive up to 8 KB (more than enough for an RTMP notify POST)
-        connection.receive(minimumIncompleteLength: 1, maximumLength: 8192) { [weak self] data, _, _, error in
+        connection.receive(minimumIncompleteLength: 1, maximumLength: 8192) { [weak self] data, _, _, _ in
             defer {
                 // Always respond 200 so nginx-rtmp allows the stream
                 let response = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"

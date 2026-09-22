@@ -1,12 +1,11 @@
 import Foundation
 
 struct GeneratedConfigs {
-    let nginxConfig:   String
+    let nginxConfig: String
     let dnsmasqConfig: String
 }
 
 struct ConfigGenerator {
-
     func generate(macIP: String) -> GeneratedConfigs {
         Paths.createWorkDir()
 

@@ -11,9 +11,9 @@ struct PS5StreamerApp: App {
         } label: {
             // Icon reflects running state
             Image(systemName: appState.isRunning
-                  ? "dot.radiowaves.left.and.right"
-                  : "dot.radiowaves.left.and.right")
-            .symbolRenderingMode(.hierarchical)
+                ? "dot.radiowaves.left.and.right"
+                : "dot.radiowaves.left.and.right")
+                .symbolRenderingMode(.hierarchical)
         }
         .menuBarExtraStyle(.window)
     }
