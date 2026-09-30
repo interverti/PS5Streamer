@@ -57,6 +57,7 @@ QString ConfigGenerator::nginxConfig() const
         "}\n"
         "\n"
         "http {\n"
+        "    access_log off;\n"
         "    server {\n"
         "        listen 8080;\n"
         "        location /stat { rtmp_stat all; }\n"
