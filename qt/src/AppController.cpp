@@ -31,6 +31,11 @@ AppController::AppController(QObject *parent)
         if (!m_dnsInterceptor->start(QHostAddress(m_localIP), &dnsError)) {
             setDnsStatus(ServiceStatus::Error, dnsError);
             log(QStringLiteral("❌ DNS: %1").arg(dnsError));
+#ifndef Q_OS_WIN
+            log(QStringLiteral("ℹ️ Port 53 needs root — relaunch with: sudo ./PS5Streamer"));
+#else
+            log(QStringLiteral("ℹ️ Port 53 needs elevation — Run as administrator"));
+#endif
             m_processManager->stopNginx();
             setRtmpStatus(ServiceStatus::Stopped);
             m_streamKeyServer->stop();

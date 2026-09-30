@@ -4,6 +4,11 @@
 #include <QFile>
 #include <QTextStream>
 
+#ifndef Q_OS_WIN
+#include <grp.h>
+#include <pwd.h>
+#endif
+
 GeneratedConfigs ConfigGenerator::generate(const QString & /*hostIP*/)
 {
     Paths::createWorkDir();
@@ -20,13 +25,36 @@ GeneratedConfigs ConfigGenerator::generate(const QString & /*hostIP*/)
     return configs;
 }
 
+QString ConfigGenerator::nginxUserDirective() const
+{
+#ifdef Q_OS_WIN
+    // Windows build ignores the Unix user directive
+    return {};
+#else
+    // Ubuntu-built nginx defaults to group "nogroup", which does not exist on
+    // Fedora/RHEL (they use "nobody"). Pick a pair that exists locally.
+    const bool hasNobodyUser = getpwnam("nobody") != nullptr;
+    const bool hasNobodyGroup = getgrnam("nobody") != nullptr;
+    const bool hasNogroup = getgrnam("nogroup") != nullptr;
+
+    if (hasNobodyUser && hasNobodyGroup)
+        return QStringLiteral("user nobody nobody;\n");
+    if (hasNobodyUser && hasNogroup)
+        return QStringLiteral("user nobody nogroup;\n");
+    if (getpwnam("nginx") && getgrnam("nginx"))
+        return QStringLiteral("user nginx nginx;\n");
+    // Local interceptor tool: keep workers as root if nothing else fits
+    return QStringLiteral("user root;\n");
+#endif
+}
+
 QString ConfigGenerator::nginxConfig() const
 {
-    // Keep paths with forward slashes; quote them for Windows spaces.
     const QString err = Paths::nginxErrLog();
     const QString pid = Paths::nginxPid();
+    const QString userLine = nginxUserDirective();
 
-    return QStringLiteral(
+    return userLine + QStringLiteral(
         "worker_processes 1;\n"
         "error_log \"%1\" warn;\n"
         "pid       \"%2\";\n"
