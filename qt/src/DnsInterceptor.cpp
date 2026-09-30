@@ -32,7 +32,8 @@ bool DnsInterceptor::start(const QHostAddress &spoofIP, QString *errorMessage)
     stop();
     m_spoofIP = spoofIP;
 
-    if (!m_socket.bind(QHostAddress::AnyIPv4, 53, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint)) {
+    if (!m_socket.bind(QHostAddress(QHostAddress::AnyIPv4), quint16(53),
+                       QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint)) {
         if (errorMessage) {
             *errorMessage = QStringLiteral("Cannot bind UDP :53 (%1). Run as administrator / root.")
                                 .arg(m_socket.errorString());
@@ -40,7 +41,7 @@ bool DnsInterceptor::start(const QHostAddress &spoofIP, QString *errorMessage)
         return false;
     }
 
-    if (!m_upstream.bind(QHostAddress::AnyIPv4, 0)) {
+    if (!m_upstream.bind(QHostAddress(QHostAddress::AnyIPv4), quint16(0))) {
         m_socket.close();
         if (errorMessage) {
             *errorMessage = QStringLiteral("Cannot open upstream DNS socket (%1).")
