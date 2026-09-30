@@ -70,7 +70,6 @@ jobs:
             --with-http_ssl_module \
             --with-http_stub_status_module \
             --without-http_auth_basic_module \
-            --without-http_auth_request_module \
             --add-module=../nginx-rtmp-module \
             --without-http_upstream_zone_module \
             --with-ld-opt="-Wl,-rpath,\$ORIGIN/lib"
