@@ -31,6 +31,7 @@ private:
     QWidget *makeDivider();
     QColor statusColor(int status) const;
     void setDotColor(QLabel *dot, int status);
+    bool ensureElevated();
 
     AppController *m_controller = nullptr;
     QPushButton *m_toggleBtn = nullptr;
@@ -43,4 +44,5 @@ private:
     QWidget *m_urlRow = nullptr;
     QListWidget *m_logList = nullptr;
     QSystemTrayIcon *m_tray = nullptr;
+    bool m_forceQuit = false;
 };

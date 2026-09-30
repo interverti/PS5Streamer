@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 
 #include "AppController.h"
+#include "Privilege.h"
 
 #include <QApplication>
 #include <QClipboard>
@@ -13,6 +14,7 @@
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QMenu>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QSizePolicy>
 #include <QStyle>
@@ -34,13 +36,20 @@ QLabel *sectionCaption(const QString &text)
 QFont monoFont(int pointSize, bool medium = false)
 {
     QFont f(QStringLiteral("Menlo"));
-    if (f.exactMatch() == false)
+    if (!f.exactMatch())
         f = QFont(QStringLiteral("Consolas"));
-    if (f.exactMatch() == false)
+    if (!f.exactMatch())
+        f = QFont(QStringLiteral("Cascadia Mono"));
+    if (!f.exactMatch())
         f = QFont(QStringLiteral("monospace"));
     f.setPointSize(pointSize);
     f.setWeight(medium ? QFont::Medium : QFont::Normal);
     return f;
+}
+
+QString u8(const char *s)
+{
+    return QString::fromUtf8(s);
 }
 
 } // namespace
@@ -58,17 +67,14 @@ MainWindow::MainWindow(AppController *controller, QWidget *parent)
     root->setContentsMargins(0, 0, 0, 0);
     root->setSpacing(0);
 
-    // ── Header (icon + title + Start) ───────────────────────────────────────
     auto *header = new QWidget;
     auto *headerLay = new QHBoxLayout(header);
     headerLay->setContentsMargins(16, 14, 16, 14);
     headerLay->setSpacing(10);
 
-    // Drawn dot (no Unicode) so Windows fonts cannot mojibake the icon
     auto *icon = new QLabel;
     icon->setFixedSize(14, 14);
-    icon->setStyleSheet(QStringLiteral(
-        "background: #AF52DE; border-radius: 7px;"));
+    icon->setStyleSheet(QStringLiteral("background: #AF52DE; border-radius: 7px;"));
 
     auto *title = new QLabel(QStringLiteral("PS5 Streamer"));
     QFont titleFont = title->font();
@@ -88,7 +94,6 @@ MainWindow::MainWindow(AppController *controller, QWidget *parent)
     root->addWidget(header);
     root->addWidget(makeDivider());
 
-    // ── Services ────────────────────────────────────────────────────────────
     auto *services = new QWidget;
     auto *servicesLay = new QHBoxLayout(services);
     servicesLay->setContentsMargins(16, 12, 16, 12);
@@ -116,7 +121,6 @@ MainWindow::MainWindow(AppController *controller, QWidget *parent)
     root->addWidget(services);
     root->addWidget(makeDivider());
 
-    // ── PS5 DNS ─────────────────────────────────────────────────────────────
     auto *dns = new QWidget;
     auto *dnsLay = new QVBoxLayout(dns);
     dnsLay->setContentsMargins(16, 12, 16, 12);
@@ -129,7 +133,6 @@ MainWindow::MainWindow(AppController *controller, QWidget *parent)
     root->addWidget(dns);
     root->addWidget(makeDivider());
 
-    // ── mpv URL ─────────────────────────────────────────────────────────────
     auto *url = new QWidget;
     auto *urlLay = new QVBoxLayout(url);
     urlLay->setContentsMargins(16, 12, 16, 12);
@@ -162,7 +165,6 @@ MainWindow::MainWindow(AppController *controller, QWidget *parent)
     root->addWidget(url);
     root->addWidget(makeDivider());
 
-    // ── Log ─────────────────────────────────────────────────────────────────
     auto *log = new QWidget;
     auto *logLay = new QVBoxLayout(log);
     logLay->setContentsMargins(16, 12, 16, 12);
@@ -184,7 +186,7 @@ MainWindow::MainWindow(AppController *controller, QWidget *parent)
 
     m_logList = new QListWidget;
     m_logList->setFont(monoFont(12));
-    m_logList->setFixedHeight(100);
+    m_logList->setFixedHeight(110);
     m_logList->setFrameShape(QFrame::NoFrame);
     m_logList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_logList->setWordWrap(true);
@@ -195,7 +197,6 @@ MainWindow::MainWindow(AppController *controller, QWidget *parent)
     root->addWidget(log);
     root->addWidget(makeDivider());
 
-    // ── Footer ──────────────────────────────────────────────────────────────
     auto *footer = new QWidget;
     auto *footerLay = new QHBoxLayout(footer);
     footerLay->setContentsMargins(16, 12, 16, 12);
@@ -208,6 +209,7 @@ MainWindow::MainWindow(AppController *controller, QWidget *parent)
     quitBtn->setFont(quitFont);
     quitBtn->setStyleSheet(QStringLiteral("color: rgba(128,128,128,180); border: none;"));
     connect(quitBtn, &QPushButton::clicked, this, [this]() {
+        m_forceQuit = true;
         m_controller->stop();
         qApp->quit();
     });
@@ -252,6 +254,7 @@ void MainWindow::setupTray()
     menu->addAction(QStringLiteral("Start / Stop"), this, &MainWindow::onToggle);
     menu->addSeparator();
     menu->addAction(QStringLiteral("Quit"), this, [this]() {
+        m_forceQuit = true;
         m_controller->stop();
         qApp->quit();
     });
@@ -271,13 +274,77 @@ void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    if (m_tray && m_tray->isVisible()) {
+    if (m_forceQuit) {
+        m_controller->stop();
+        QMainWindow::closeEvent(event);
+        return;
+    }
+
+    QMessageBox box(this);
+    box.setWindowTitle(QStringLiteral("PS5 Streamer"));
+    box.setIcon(QMessageBox::Question);
+    box.setText(QStringLiteral("Close PS5 Streamer?"));
+    box.setInformativeText(QStringLiteral(
+        "Quit completely, or keep running in the background (system tray)."));
+
+    QPushButton *backgroundBtn = nullptr;
+    if (m_tray && QSystemTrayIcon::isSystemTrayAvailable()) {
+        backgroundBtn = box.addButton(QStringLiteral("Keep in background"),
+                                      QMessageBox::AcceptRole);
+    }
+    auto *quitBtn = box.addButton(QStringLiteral("Quit"), QMessageBox::DestructiveRole);
+    box.addButton(QStringLiteral("Cancel"), QMessageBox::RejectRole);
+    box.setDefaultButton(backgroundBtn ? backgroundBtn : quitBtn);
+    box.exec();
+
+    if (backgroundBtn && box.clickedButton() == backgroundBtn) {
         hide();
+        m_tray->showMessage(QStringLiteral("PS5 Streamer"),
+                            QStringLiteral("Running in the background"),
+                            QSystemTrayIcon::Information, 2000);
         event->ignore();
         return;
     }
-    m_controller->stop();
-    QMainWindow::closeEvent(event);
+
+    if (box.clickedButton() == quitBtn) {
+        m_forceQuit = true;
+        m_controller->stop();
+        event->accept();
+        qApp->quit();
+        return;
+    }
+
+    event->ignore();
+}
+
+bool MainWindow::ensureElevated()
+{
+    if (Privilege::isElevated())
+        return true;
+
+    const auto answer = QMessageBox::question(
+        this,
+        QStringLiteral("Administrator required"),
+        QStringLiteral(
+            "DNS interception needs port 53.\n\n"
+            "Enter your password to relaunch PS5 Streamer with administrator rights."),
+        QMessageBox::Ok | QMessageBox::Cancel,
+        QMessageBox::Ok);
+
+    if (answer != QMessageBox::Ok)
+        return false;
+
+    QString error;
+    if (Privilege::relaunchElevated(&error)) {
+        m_forceQuit = true;
+        qApp->quit();
+        return false;
+    }
+
+    QMessageBox::warning(this, QStringLiteral("Elevation failed"),
+                         error.isEmpty() ? QStringLiteral("Could not elevate privileges.")
+                                         : error);
+    return false;
 }
 
 void MainWindow::onToggle()
@@ -288,8 +355,13 @@ void MainWindow::onToggle()
         return;
     }
 
+    if (!ensureElevated()) {
+        refreshUI();
+        return;
+    }
+
     m_toggleBtn->setEnabled(false);
-    m_toggleBtn->setText(QStringLiteral("..."));
+    m_toggleBtn->setText(u8("…"));
     m_controller->start();
 }
 
@@ -339,9 +411,8 @@ void MainWindow::refreshUI()
         || m_controller->dnsStatus() == ServiceStatus::Starting;
 
     m_toggleBtn->setEnabled(!starting);
-    m_toggleBtn->setText(starting ? QStringLiteral("...")
+    m_toggleBtn->setText(starting ? u8("…")
                                   : (running ? QStringLiteral("Stop") : QStringLiteral("Start")));
-    // Match Swift borderedProminent tint: purple start / red stop
     m_toggleBtn->setStyleSheet(QStringLiteral(
         "QPushButton {"
         "  background: %1; color: white; border: none; border-radius: 6px;"
@@ -363,12 +434,12 @@ void MainWindow::refreshUI()
         m_urlHint->hide();
     } else {
         m_urlRow->hide();
-        m_urlHint->setText(running ? QStringLiteral("Waiting for PS5...")
+        m_urlHint->setText(running ? u8("Waiting for PS5…")
                                    : QStringLiteral("Start to get URL"));
         m_urlHint->show();
     }
 
     if (m_tray)
-        m_tray->setToolTip(running ? QStringLiteral("PS5 Streamer - Running")
+        m_tray->setToolTip(running ? u8("PS5 Streamer — Running")
                                    : QStringLiteral("PS5 Streamer"));
 }

@@ -19,6 +19,7 @@ set(SOURCES
     src/StreamKeyServer.cpp
     src/DnsInterceptor.cpp
     src/Paths.cpp
+    src/Privilege.cpp
 )
 
 set(HEADERS
@@ -30,6 +31,7 @@ set(HEADERS
     src/StreamKeyServer.h
     src/DnsInterceptor.h
     src/Paths.h
+    src/Privilege.h
 )
 
 add_executable(PS5Streamer WIN32 ${SOURCES} ${HEADERS})
@@ -48,6 +50,7 @@ endif()
 
 if(WIN32)
     target_compile_definitions(PS5Streamer PRIVATE PS5STREAMER_WINDOWS)
+    target_link_libraries(PS5Streamer PRIVATE shell32 advapi32)
 elseif(UNIX AND NOT APPLE)
     target_compile_definitions(PS5Streamer PRIVATE PS5STREAMER_LINUX)
 endif()
