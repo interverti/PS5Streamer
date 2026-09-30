@@ -6,121 +6,215 @@
 #include <QClipboard>
 #include <QCloseEvent>
 #include <QColor>
+#include <QFont>
+#include <QFrame>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QLineEdit>
 #include <QListWidget>
+#include <QListWidgetItem>
 #include <QMenu>
 #include <QPushButton>
+#include <QSizePolicy>
 #include <QStyle>
 #include <QVBoxLayout>
 #include <QWidget>
+
+namespace {
+
+QLabel *sectionCaption(const QString &text)
+{
+    auto *label = new QLabel(text);
+    QFont f = label->font();
+    f.setPointSize(10);
+    label->setFont(f);
+    label->setStyleSheet(QStringLiteral("color: rgba(128,128,128,180);"));
+    return label;
+}
+
+QFont monoFont(int pointSize, bool medium = false)
+{
+    QFont f(QStringLiteral("Menlo"));
+    if (f.exactMatch() == false)
+        f = QFont(QStringLiteral("Consolas"));
+    if (f.exactMatch() == false)
+        f = QFont(QStringLiteral("monospace"));
+    f.setPointSize(pointSize);
+    f.setWeight(medium ? QFont::Medium : QFont::Normal);
+    return f;
+}
+
+} // namespace
 
 MainWindow::MainWindow(AppController *controller, QWidget *parent)
     : QMainWindow(parent)
     , m_controller(controller)
 {
     setWindowTitle(QStringLiteral("PS5 Streamer"));
-    setFixedWidth(380);
-    setMinimumHeight(480);
+    setFixedWidth(340);
+    setMinimumHeight(420);
 
     auto *central = new QWidget(this);
     auto *root = new QVBoxLayout(central);
-    root->setContentsMargins(14, 12, 14, 12);
-    root->setSpacing(10);
+    root->setContentsMargins(0, 0, 0, 0);
+    root->setSpacing(0);
 
-    // Header
-    auto *header = new QHBoxLayout;
+    // ── Header (icon + title + Start) ───────────────────────────────────────
+    auto *header = new QWidget;
+    auto *headerLay = new QHBoxLayout(header);
+    headerLay->setContentsMargins(14, 12, 14, 12);
+    headerLay->setSpacing(10);
+
+    auto *icon = new QLabel(QStringLiteral("◉"));
+    QFont iconFont = icon->font();
+    iconFont.setPointSize(16);
+    iconFont.setBold(true);
+    icon->setFont(iconFont);
+    icon->setStyleSheet(QStringLiteral("color: #AF52DE;"));
+
     auto *title = new QLabel(QStringLiteral("PS5 Streamer"));
     QFont titleFont = title->font();
-    titleFont.setPointSize(14);
-    titleFont.setBold(true);
+    titleFont.setPointSize(15);
+    titleFont.setWeight(QFont::DemiBold);
     title->setFont(titleFont);
 
     m_toggleBtn = new QPushButton(QStringLiteral("Start"));
-    m_toggleBtn->setFixedWidth(72);
+    m_toggleBtn->setFixedWidth(58);
+    m_toggleBtn->setCursor(Qt::PointingHandCursor);
     connect(m_toggleBtn, &QPushButton::clicked, this, &MainWindow::onToggle);
 
-    header->addWidget(title);
-    header->addStretch();
-    header->addWidget(m_toggleBtn);
-    root->addLayout(header);
+    headerLay->addWidget(icon);
+    headerLay->addWidget(title);
+    headerLay->addStretch();
+    headerLay->addWidget(m_toggleBtn);
+    root->addWidget(header);
+    root->addWidget(makeDivider());
 
-    // Services
-    auto *services = new QHBoxLayout;
-    m_rtmpDot = new QLabel(QStringLiteral("●"));
-    m_rtmpLabel = new QLabel(QStringLiteral("RTMP :1935"));
-    m_dnsDot = new QLabel(QStringLiteral("●"));
-    m_dnsLabel = new QLabel(QStringLiteral("DNS :53"));
-    services->addWidget(m_rtmpDot);
-    services->addWidget(m_rtmpLabel);
-    services->addSpacing(16);
-    services->addWidget(m_dnsDot);
-    services->addWidget(m_dnsLabel);
-    services->addStretch();
-    root->addLayout(services);
+    // ── Services ────────────────────────────────────────────────────────────
+    auto *services = new QWidget;
+    auto *servicesLay = new QHBoxLayout(services);
+    servicesLay->setContentsMargins(14, 10, 14, 10);
+    servicesLay->setSpacing(20);
 
-    // DNS IP
-    auto *ipLabel = new QLabel(QStringLiteral("PS5 DNS"));
-    QFont small = ipLabel->font();
-    small.setPointSize(9);
-    ipLabel->setFont(small);
-    ipLabel->setStyleSheet(QStringLiteral("color: gray;"));
+    auto addStatus = [&](QLabel **dotOut, const QString &text) {
+        auto *row = new QWidget;
+        auto *lay = new QHBoxLayout(row);
+        lay->setContentsMargins(0, 0, 0, 0);
+        lay->setSpacing(6);
+        auto *dot = new QLabel(QStringLiteral("●"));
+        QFont df = dot->font();
+        df.setPointSize(8);
+        dot->setFont(df);
+        auto *lab = new QLabel(text);
+        lab->setFont(monoFont(12));
+        lab->setStyleSheet(QStringLiteral("color: gray;"));
+        lay->addWidget(dot);
+        lay->addWidget(lab);
+        servicesLay->addWidget(row);
+        *dotOut = dot;
+    };
+    addStatus(&m_rtmpDot, QStringLiteral("RTMP :1935"));
+    addStatus(&m_dnsDot, QStringLiteral("DNS :53"));
+    servicesLay->addStretch();
+    root->addWidget(services);
+    root->addWidget(makeDivider());
+
+    // ── PS5 DNS ─────────────────────────────────────────────────────────────
+    auto *dns = new QWidget;
+    auto *dnsLay = new QVBoxLayout(dns);
+    dnsLay->setContentsMargins(14, 10, 14, 10);
+    dnsLay->setSpacing(2);
+    dnsLay->addWidget(sectionCaption(QStringLiteral("PS5 DNS")));
     m_ipValue = new QLabel;
-    QFont mono = m_ipValue->font();
-    mono.setFamily(QStringLiteral("monospace"));
-    mono.setPointSize(12);
-    m_ipValue->setFont(mono);
+    m_ipValue->setFont(monoFont(13, true));
     m_ipValue->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    root->addWidget(ipLabel);
-    root->addWidget(m_ipValue);
+    dnsLay->addWidget(m_ipValue);
+    root->addWidget(dns);
+    root->addWidget(makeDivider());
 
-    // URL
-    auto *urlTitle = new QLabel(QStringLiteral("OBS / mpv URL"));
-    urlTitle->setFont(small);
-    urlTitle->setStyleSheet(QStringLiteral("color: gray;"));
-    root->addWidget(urlTitle);
+    // ── mpv URL ─────────────────────────────────────────────────────────────
+    auto *url = new QWidget;
+    auto *urlLay = new QVBoxLayout(url);
+    urlLay->setContentsMargins(14, 10, 14, 10);
+    urlLay->setSpacing(6);
+    urlLay->addWidget(sectionCaption(QStringLiteral("mpv URL")));
 
-    auto *urlRow = new QHBoxLayout;
-    m_urlEdit = new QLineEdit;
-    m_urlEdit->setReadOnly(true);
-    m_urlEdit->setFont(mono);
+    m_urlRow = new QWidget;
+    auto *urlRowLay = new QHBoxLayout(m_urlRow);
+    urlRowLay->setContentsMargins(0, 0, 0, 0);
+    urlRowLay->setSpacing(8);
+    m_urlValue = new QLabel;
+    m_urlValue->setFont(monoFont(11));
+    m_urlValue->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_urlValue->setWordWrap(false);
+    m_urlValue->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_copyBtn = new QPushButton(QStringLiteral("Copy"));
-    m_copyBtn->setEnabled(false);
+    m_copyBtn->setFixedHeight(24);
+    m_copyBtn->setCursor(Qt::PointingHandCursor);
     connect(m_copyBtn, &QPushButton::clicked, this, &MainWindow::onCopyUrl);
-    urlRow->addWidget(m_urlEdit);
-    urlRow->addWidget(m_copyBtn);
-    root->addLayout(urlRow);
+    urlRowLay->addWidget(m_urlValue);
+    urlRowLay->addWidget(m_copyBtn);
+    urlLay->addWidget(m_urlRow);
 
     m_urlHint = new QLabel(QStringLiteral("Start to get URL"));
-    m_urlHint->setStyleSheet(QStringLiteral("color: gray;"));
-    root->addWidget(m_urlHint);
+    QFont hintFont = m_urlHint->font();
+    hintFont.setPointSize(12);
+    m_urlHint->setFont(hintFont);
+    m_urlHint->setStyleSheet(QStringLiteral("color: rgba(128,128,128,180);"));
+    urlLay->addWidget(m_urlHint);
+    root->addWidget(url);
+    root->addWidget(makeDivider());
 
-    // Logs
+    // ── Log ─────────────────────────────────────────────────────────────────
+    auto *log = new QWidget;
+    auto *logLay = new QVBoxLayout(log);
+    logLay->setContentsMargins(14, 10, 14, 10);
+    logLay->setSpacing(6);
+
     auto *logHeader = new QHBoxLayout;
-    auto *logTitle = new QLabel(QStringLiteral("Log"));
-    logTitle->setFont(small);
-    logTitle->setStyleSheet(QStringLiteral("color: gray;"));
+    logHeader->addWidget(sectionCaption(QStringLiteral("Log")));
+    logHeader->addStretch();
     auto *clearBtn = new QPushButton(QStringLiteral("Clear"));
     clearBtn->setFlat(true);
+    clearBtn->setCursor(Qt::PointingHandCursor);
+    QFont clearFont = clearBtn->font();
+    clearFont.setPointSize(11);
+    clearBtn->setFont(clearFont);
+    clearBtn->setStyleSheet(QStringLiteral("color: rgba(128,128,128,180); border: none;"));
     connect(clearBtn, &QPushButton::clicked, m_controller, &AppController::clearLogs);
-    logHeader->addWidget(logTitle);
-    logHeader->addStretch();
     logHeader->addWidget(clearBtn);
-    root->addLayout(logHeader);
+    logLay->addLayout(logHeader);
 
     m_logList = new QListWidget;
-    m_logList->setFont(mono);
-    m_logList->setMinimumHeight(140);
-    root->addWidget(m_logList, 1);
+    m_logList->setFont(monoFont(12));
+    m_logList->setFixedHeight(100);
+    m_logList->setFrameShape(QFrame::NoFrame);
+    m_logList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_logList->setWordWrap(true);
+    m_logList->setStyleSheet(QStringLiteral(
+        "QListWidget { background: transparent; color: gray; }"
+        "QListWidget::item { padding: 1px 0; }"));
+    logLay->addWidget(m_logList);
+    root->addWidget(log);
+    root->addWidget(makeDivider());
 
+    // ── Footer ──────────────────────────────────────────────────────────────
+    auto *footer = new QWidget;
+    auto *footerLay = new QHBoxLayout(footer);
+    footerLay->setContentsMargins(14, 10, 14, 10);
+    footerLay->addStretch();
     auto *quitBtn = new QPushButton(QStringLiteral("Quit"));
     quitBtn->setFlat(true);
+    quitBtn->setCursor(Qt::PointingHandCursor);
+    QFont quitFont = quitBtn->font();
+    quitFont.setPointSize(12);
+    quitBtn->setFont(quitFont);
+    quitBtn->setStyleSheet(QStringLiteral("color: rgba(128,128,128,180); border: none;"));
     connect(quitBtn, &QPushButton::clicked, this, [this]() {
         m_controller->stop();
         qApp->quit();
     });
-    root->addWidget(quitBtn, 0, Qt::AlignRight);
+    footerLay->addWidget(quitBtn);
+    root->addWidget(footer);
 
     setCentralWidget(central);
 
@@ -134,6 +228,16 @@ MainWindow::MainWindow(AppController *controller, QWidget *parent)
 
     setupTray();
     refreshUI();
+}
+
+QWidget *MainWindow::makeDivider()
+{
+    auto *line = new QFrame;
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Plain);
+    line->setFixedHeight(1);
+    line->setStyleSheet(QStringLiteral("background: rgba(128,128,128,60); border: none;"));
+    return line;
 }
 
 void MainWindow::setupTray()
@@ -200,7 +304,9 @@ void MainWindow::onCopyUrl()
 
 void MainWindow::onLogAdded(const QString &line)
 {
-    m_logList->insertItem(0, line);
+    auto *item = new QListWidgetItem(line);
+    item->setToolTip(line);
+    m_logList->insertItem(0, item);
     while (m_logList->count() > 200)
         delete m_logList->takeItem(m_logList->count() - 1);
 }
@@ -209,15 +315,25 @@ QColor MainWindow::statusColor(int status) const
 {
     switch (static_cast<ServiceStatus>(status)) {
     case ServiceStatus::Stopped:
-        return QColor(QStringLiteral("#888888"));
+        return QColor(QStringLiteral("#8E8E93"));
     case ServiceStatus::Starting:
-        return QColor(QStringLiteral("#E6B800"));
+        return QColor(QStringLiteral("#FFD60A"));
     case ServiceStatus::Running:
-        return QColor(QStringLiteral("#2ECC71"));
+        return QColor(QStringLiteral("#30D158"));
     case ServiceStatus::Error:
-        return QColor(QStringLiteral("#E74C3C"));
+        return QColor(QStringLiteral("#FF453A"));
     }
     return QColor(Qt::gray);
+}
+
+void MainWindow::setDotColor(QLabel *dot, int status)
+{
+    const QColor c = statusColor(status);
+    const bool glow = static_cast<ServiceStatus>(status) == ServiceStatus::Running;
+    dot->setStyleSheet(QStringLiteral("color: %1;%2")
+                           .arg(c.name(),
+                                glow ? QStringLiteral(" text-shadow: 0 0 4px %1;").arg(c.name())
+                                     : QString()));
 }
 
 void MainWindow::refreshUI()
@@ -229,31 +345,28 @@ void MainWindow::refreshUI()
     m_toggleBtn->setEnabled(!starting);
     m_toggleBtn->setText(starting ? QStringLiteral("…")
                                   : (running ? QStringLiteral("Stop") : QStringLiteral("Start")));
-    m_toggleBtn->setStyleSheet(running
-        ? QStringLiteral("QPushButton { background: #E74C3C; color: white; }")
-        : QStringLiteral("QPushButton { background: #7B2CBF; color: white; }"));
+    // Match Swift borderedProminent tint: purple start / red stop
+    m_toggleBtn->setStyleSheet(QStringLiteral(
+        "QPushButton {"
+        "  background: %1; color: white; border: none; border-radius: 6px;"
+        "  padding: 4px 10px; font-weight: 600;"
+        "}"
+        "QPushButton:disabled { opacity: 0.6; }"
+        ).arg(running ? QStringLiteral("#FF453A") : QStringLiteral("#AF52DE")));
 
     m_ipValue->setText(m_controller->localIP());
-
-    const auto rtmp = m_controller->rtmpStatus();
-    const auto dns = m_controller->dnsStatus();
-    m_rtmpDot->setStyleSheet(QStringLiteral("color: %1;").arg(statusColor(int(rtmp)).name()));
-    m_dnsDot->setStyleSheet(QStringLiteral("color: %1;").arg(statusColor(int(dns)).name()));
-    m_rtmpLabel->setToolTip(m_controller->rtmpStatusLabel());
-    m_dnsLabel->setToolTip(m_controller->dnsStatusLabel());
+    setDotColor(m_rtmpDot, int(m_controller->rtmpStatus()));
+    setDotColor(m_dnsDot, int(m_controller->dnsStatus()));
+    m_rtmpDot->setToolTip(m_controller->rtmpStatusLabel());
+    m_dnsDot->setToolTip(m_controller->dnsStatusLabel());
 
     const QString url = m_controller->obsURL();
     if (!url.isEmpty()) {
-        m_urlEdit->setText(url);
-        m_urlEdit->show();
-        m_copyBtn->setEnabled(true);
-        m_copyBtn->show();
+        m_urlValue->setText(url);
+        m_urlRow->show();
         m_urlHint->hide();
     } else {
-        m_urlEdit->clear();
-        m_urlEdit->hide();
-        m_copyBtn->setEnabled(false);
-        m_copyBtn->hide();
+        m_urlRow->hide();
         m_urlHint->setText(running ? QStringLiteral("Waiting for PS5…")
                                    : QStringLiteral("Start to get URL"));
         m_urlHint->show();

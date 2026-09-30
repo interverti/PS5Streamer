@@ -36,11 +36,10 @@ QString ProcessManager::resolveNginxBin()
     };
 
     for (const QString &path : candidates) {
-        if (QFileInfo::exists(path))
-            return path;
+        if (QFileInfo::exists(path) && QFileInfo(path).isFile())
+            return QFileInfo(path).absoluteFilePath();
     }
 
-    // Fall back to PATH lookup
 #ifdef Q_OS_WIN
     return QStringLiteral("nginx.exe");
 #else
@@ -50,15 +49,15 @@ QString ProcessManager::resolveNginxBin()
 
 void ProcessManager::startNginx(const QString &configPath)
 {
+    Paths::createWorkDir();
+
     const QString bin = resolveNginxBin();
-    if (!QFileInfo::exists(bin) && !bin.contains(QLatin1Char('/')) && !bin.contains(QLatin1Char('\\'))) {
-        // May still be on PATH — try starting; fail later if not found
-    } else if (!QFileInfo::exists(bin)) {
+    if (!QFileInfo::exists(bin)) {
         emit nginxFailed(
 #ifdef Q_OS_WIN
-            QStringLiteral("nginx not found. Place nginx.exe (with RTMP module) next to the app or in C:\\nginx.")
+            QStringLiteral("nginx not found. Expected Binaries/nginx.exe next to the app.")
 #else
-            QStringLiteral("nginx not found. Install nginx with the RTMP module (e.g. libnginx-mod-rtmp).")
+            QStringLiteral("nginx not found. Expected Binaries/nginx next to the app.")
 #endif
         );
         return;
@@ -74,7 +73,8 @@ void ProcessManager::startNginx(const QString &configPath)
 
     m_nginx = new QProcess(this);
     m_nginx->setProcessChannelMode(QProcess::MergedChannels);
-    m_nginx->setWorkingDirectory(QFileInfo(bin).absolutePath());
+    // Prefix = work dir so relative logs/temp resolve; config is absolute.
+    m_nginx->setWorkingDirectory(Paths::workDir());
 
     connect(m_nginx, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, [this](int exitCode, QProcess::ExitStatus) {
@@ -82,23 +82,29 @@ void ProcessManager::startNginx(const QString &configPath)
                     emit nginxCrashed();
             });
 
-    m_nginx->start(bin, {QStringLiteral("-c"), configPath, QStringLiteral("-g"), QStringLiteral("daemon off;")});
+    const QStringList args = {
+        QStringLiteral("-p"), Paths::workDir() + QLatin1Char('/'),
+        QStringLiteral("-c"), configPath,
+        QStringLiteral("-g"), QStringLiteral("daemon off;"),
+    };
+    m_nginx->start(bin, args);
 
     if (!m_nginx->waitForStarted(3000)) {
-        const QString err = m_nginx->errorString();
+        const QString err = QStringLiteral("%1 (%2)").arg(m_nginx->errorString(), bin);
         m_nginx->deleteLater();
         m_nginx = nullptr;
         emit nginxFailed(err);
         return;
     }
 
-    // Give nginx a moment to bind or fail
-    QTimer::singleShot(800, this, [this]() {
+    QTimer::singleShot(1000, this, [this, bin]() {
         if (!m_nginx)
             return;
         if (m_nginx->state() != QProcess::Running) {
-            const QString msg = QString::fromUtf8(m_nginx->readAll()).trimmed();
-            emit nginxFailed(msg.isEmpty() ? QStringLiteral("nginx exited immediately") : msg);
+            QString msg = QString::fromUtf8(m_nginx->readAll()).trimmed();
+            if (msg.isEmpty())
+                msg = QStringLiteral("nginx exited immediately (%1)").arg(bin);
+            emit nginxFailed(msg);
             m_nginx->deleteLater();
             m_nginx = nullptr;
             return;
@@ -130,9 +136,13 @@ void ProcessManager::stopAll()
 void ProcessManager::killStrayNginx()
 {
 #ifdef Q_OS_WIN
-    QProcess::execute(QStringLiteral("taskkill"), {QStringLiteral("/F"), QStringLiteral("/IM"), QStringLiteral("nginx.exe")});
+    QProcess::execute(QStringLiteral("taskkill"),
+                      {QStringLiteral("/F"), QStringLiteral("/IM"), QStringLiteral("nginx.exe")});
 #else
-    QProcess::execute(QStringLiteral("pkill"), {QStringLiteral("-f"), resolveNginxBin()});
+    // Only kill our bundled binary path if possible
+    const QString bin = resolveNginxBin();
+    if (QFileInfo::exists(bin))
+        QProcess::execute(QStringLiteral("pkill"), {QStringLiteral("-x"), QFileInfo(bin).fileName()});
 #endif
     QThread::msleep(300);
 }

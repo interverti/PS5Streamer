@@ -15,6 +15,7 @@ PS5Streamer bundles **nginx with the RTMP module** in GitHub Actions artifacts s
 PS5Streamer(.exe)
 Binaries/
   nginx(.exe)
+  lib/                 # Linux: bundled shared libs (portable across distros)
   conf/ logs/ temp/ html/   # Windows package
 ```
 

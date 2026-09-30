@@ -22,10 +22,14 @@ GeneratedConfigs ConfigGenerator::generate(const QString & /*hostIP*/)
 
 QString ConfigGenerator::nginxConfig() const
 {
+    // Keep paths with forward slashes; quote them for Windows spaces.
+    const QString err = Paths::nginxErrLog();
+    const QString pid = Paths::nginxPid();
+
     return QStringLiteral(
         "worker_processes 1;\n"
-        "error_log %1 warn;\n"
-        "pid       %2;\n"
+        "error_log \"%1\" warn;\n"
+        "pid       \"%2\";\n"
         "\n"
         "events {\n"
         "    worker_connections 512;\n"
@@ -58,5 +62,5 @@ QString ConfigGenerator::nginxConfig() const
         "        location /stat { rtmp_stat all; }\n"
         "    }\n"
         "}\n"
-    ).arg(Paths::nginxErrLog(), Paths::nginxPid());
+    ).arg(err, pid);
 }

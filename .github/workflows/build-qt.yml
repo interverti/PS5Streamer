@@ -42,7 +42,8 @@ jobs:
             libqt5network5 \
             libpcre3-dev \
             zlib1g-dev \
-            libssl-dev
+            libssl-dev \
+            patchelf
 
       - name: Configure
         run: |
@@ -53,7 +54,7 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
 
-      - name: Build nginx-rtmp
+      - name: Build portable nginx-rtmp
         working-directory: ${{ github.workspace }}
         run: |
           set -euo pipefail
@@ -63,23 +64,52 @@ jobs:
           git clone --depth 1 --branch "${NGINX_RTMP_REF}" \
             https://github.com/arut/nginx-rtmp-module.git
           cd "nginx-${NGINX_VERSION}"
+          # Drop auth_basic to avoid a hard libcrypt.so.1 dependency on non-Ubuntu distros
           ./configure \
             --prefix=/tmp/ps5streamer-nginx \
             --with-http_ssl_module \
             --with-http_stub_status_module \
+            --without-http_auth_basic_module \
+            --without-http_auth_request_module \
             --add-module=../nginx-rtmp-module \
-            --without-http_upstream_zone_module
+            --without-http_upstream_zone_module \
+            --with-ld-opt="-Wl,-rpath,\$ORIGIN/lib"
           make -j"$(nproc)"
           make install
-          # Verify RTMP is linked in
           /tmp/ps5streamer-nginx/sbin/nginx -V 2>&1 | grep -qi rtmp
+
+          # Bundle shared libs next to the binary for Fedora/Arch/etc.
+          DEST="${GITHUB_WORKSPACE}/qt/dist/Binaries"
+          mkdir -p "${DEST}/lib"
+          cp /tmp/ps5streamer-nginx/sbin/nginx "${DEST}/nginx"
+          chmod +x "${DEST}/nginx"
+          ldd "${DEST}/nginx" | awk '/=>/ {print $3}' | while read -r lib; do
+            [ -z "$lib" ] && continue
+            case "$lib" in
+              */ld-linux*.so*) continue ;;
+              */libc.so*) continue ;;
+              */libm.so*) continue ;;
+              */libdl.so*) continue ;;
+              */libpthread.so*) continue ;;
+              */librt.so*) continue ;;
+              */libgcc_s.so*) continue ;;
+            esac
+            cp -L "$lib" "${DEST}/lib/" || true
+          done
+          # Always try to ship libcrypt if the linker still wants it
+          for cand in /lib/x86_64-linux-gnu/libcrypt.so.1 /usr/lib/x86_64-linux-gnu/libcrypt.so.1; do
+            [ -f "$cand" ] && cp -L "$cand" "${DEST}/lib/" && break || true
+          done
+          patchelf --set-rpath '$ORIGIN/lib' "${DEST}/nginx"
+          echo "Bundled libs:" && ls -la "${DEST}/lib"
+          ldd "${DEST}/nginx" || true
 
       - name: Package
         run: |
-          mkdir -p dist/Binaries
+          mkdir -p dist
           cp build/PS5Streamer dist/
-          cp /tmp/ps5streamer-nginx/sbin/nginx dist/Binaries/nginx
-          chmod +x dist/Binaries/nginx
+          # Binaries/ filled by nginx step
+          test -x dist/Binaries/nginx
           cp ../THIRD_PARTY_NGINX.md dist/ 2>/dev/null || true
           tar -C dist -czf ../PS5Streamer-linux-x64.tar.gz .
 

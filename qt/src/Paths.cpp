@@ -1,38 +1,47 @@
 #include "Paths.h"
 
 #include <QDir>
-#include <QStandardPaths>
 
 namespace Paths {
 
+static QString nginxPath(const QString &relative)
+{
+    // nginx config always wants forward slashes, including on Windows
+    return QDir::fromNativeSeparators(workDir() + QLatin1Char('/') + relative);
+}
+
 QString workDir()
 {
-    return QDir::homePath() + QStringLiteral("/.ps5streamer");
+    return QDir::fromNativeSeparators(QDir::homePath() + QStringLiteral("/.ps5streamer"));
 }
 
 QString nginxConf()
 {
-    return workDir() + QStringLiteral("/nginx.conf");
+    return nginxPath(QStringLiteral("nginx.conf"));
 }
 
 QString nginxPid()
 {
-    return workDir() + QStringLiteral("/nginx.pid");
+    return nginxPath(QStringLiteral("nginx.pid"));
 }
 
 QString nginxErrLog()
 {
-    return workDir() + QStringLiteral("/nginx-error.log");
+    return nginxPath(QStringLiteral("nginx-error.log"));
 }
 
 QString dnsmasqConf()
 {
-    return workDir() + QStringLiteral("/dnsmasq.conf");
+    return nginxPath(QStringLiteral("dnsmasq.conf"));
 }
 
 void createWorkDir()
 {
     QDir().mkpath(workDir());
+    QDir().mkpath(workDir() + QStringLiteral("/logs"));
+    QDir().mkpath(workDir() + QStringLiteral("/temp"));
+    QDir().mkpath(workDir() + QStringLiteral("/html"));
+    QDir().mkpath(workDir() + QStringLiteral("/conf"));
 }
 
 } // namespace Paths

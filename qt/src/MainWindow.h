@@ -7,7 +7,7 @@ class AppController;
 class QLabel;
 class QPushButton;
 class QListWidget;
-class QLineEdit;
+class QWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -28,18 +28,19 @@ private slots:
 
 private:
     void setupTray();
+    QWidget *makeDivider();
     QColor statusColor(int status) const;
+    void setDotColor(QLabel *dot, int status);
 
     AppController *m_controller = nullptr;
     QPushButton *m_toggleBtn = nullptr;
     QLabel *m_rtmpDot = nullptr;
     QLabel *m_dnsDot = nullptr;
-    QLabel *m_rtmpLabel = nullptr;
-    QLabel *m_dnsLabel = nullptr;
     QLabel *m_ipValue = nullptr;
-    QLineEdit *m_urlEdit = nullptr;
+    QLabel *m_urlValue = nullptr;
     QPushButton *m_copyBtn = nullptr;
     QLabel *m_urlHint = nullptr;
+    QWidget *m_urlRow = nullptr;
     QListWidget *m_logList = nullptr;
     QSystemTrayIcon *m_tray = nullptr;
 };
