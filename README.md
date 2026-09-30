@@ -35,9 +35,9 @@ Sources live in [`qt/`](qt/). Requires [Qt 5.15+](https://doc.qt.io/qt-5/) (Core
 
 ### Runtime dependencies
 
-- **nginx with RTMP module** (listens on `:1935`)
-  - Linux: e.g. `nginx-full` + RTMP module, or a custom nginx-rtmp build
-  - Windows: place `nginx.exe` (RTMP-enabled) next to the app or in `C:\nginx`
+- **nginx with RTMP** — bundled as `Binaries/nginx` in CI artifacts (see [`THIRD_PARTY_NGINX.md`](THIRD_PARTY_NGINX.md))
+  - Windows upstream: [iliweii/nginx-rtmp-win64](https://github.com/iliweii/nginx-rtmp-win64)
+  - Linux: built in CI from [nginx.org](https://nginx.org/en/download.html) + [arut/nginx-rtmp-module](https://github.com/arut/nginx-rtmp-module)
 - **Administrator / root** to bind DNS on UDP port `53`
 
 ### Build locally
@@ -51,15 +51,14 @@ cmake --build build --config Release
 Linux binary: `build/PS5Streamer`  
 Windows binary: `build/Release/PS5Streamer.exe` (then run `windeployqt` if needed)
 
+Place an RTMP-enabled nginx in `Binaries/` next to the app, or use a CI artifact that already includes it.
+
 ### GitHub Actions
 
-Workflow [`.github/workflows/build-qt.yml`](.github/workflows/build-qt.yml) builds:
+Workflow [`.github/workflows/build-qt.yml`](.github/workflows/build-qt.yml) builds and **ships nginx-rtmp**:
 
-- **Linux** (Ubuntu 22.04 + system Qt 5) → `PS5Streamer-linux-x64.tar.gz`
-- **Windows** (Qt 5.15.2 MSVC) → `PS5Streamer-windows-x64.zip`
-
-Artifacts are uploaded on every push/PR that touches `qt/`.
-
+- **Linux** → `PS5Streamer-linux-x64.tar.gz` (`PS5Streamer` + `Binaries/nginx`)
+- **Windows** → `PS5Streamer-windows-x64.zip` (`PS5Streamer.exe` + Qt runtime + `Binaries/nginx.exe`)
 ---
 
 ## macOS

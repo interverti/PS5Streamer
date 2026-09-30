@@ -12,6 +12,12 @@ on:
       - ".github/workflows/build-qt.yml"
   workflow_dispatch:
 
+env:
+  NGINX_VERSION: "1.26.3"
+  NGINX_RTMP_REF: "master"
+  # Prebuilt nginx 1.28.1 + RTMP (static), Windows x64
+  NGINX_WIN_URL: "https://github.com/iliweii/nginx-rtmp-win64/releases/download/v1.0.0/nginx-rtmp-win64.zip"
+
 jobs:
   linux:
     name: Linux (Qt 5.15)
@@ -33,7 +39,10 @@ jobs:
             qtbase5-dev \
             qt5-qmake \
             libqt5widgets5 \
-            libqt5network5
+            libqt5network5 \
+            libpcre3-dev \
+            zlib1g-dev \
+            libssl-dev
 
       - name: Configure
         run: |
@@ -44,14 +53,35 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
 
-      - name: Install
-        run: cmake --install build
+      - name: Build nginx-rtmp
+        working-directory: ${{ github.workspace }}
+        run: |
+          set -euo pipefail
+          mkdir -p vendor
+          cd vendor
+          curl -fsSL "https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" | tar xz
+          git clone --depth 1 --branch "${NGINX_RTMP_REF}" \
+            https://github.com/arut/nginx-rtmp-module.git
+          cd "nginx-${NGINX_VERSION}"
+          ./configure \
+            --prefix=/tmp/ps5streamer-nginx \
+            --with-http_ssl_module \
+            --with-http_stub_status_module \
+            --add-module=../nginx-rtmp-module \
+            --without-http_upstream_zone_module
+          make -j"$(nproc)"
+          make install
+          # Verify RTMP is linked in
+          /tmp/ps5streamer-nginx/sbin/nginx -V 2>&1 | grep -qi rtmp
 
       - name: Package
         run: |
-          mkdir -p dist
+          mkdir -p dist/Binaries
           cp build/PS5Streamer dist/
-          tar -C dist -czf ../PS5Streamer-linux-x64.tar.gz PS5Streamer
+          cp /tmp/ps5streamer-nginx/sbin/nginx dist/Binaries/nginx
+          chmod +x dist/Binaries/nginx
+          cp ../THIRD_PARTY_NGINX.md dist/ 2>/dev/null || true
+          tar -C dist -czf ../PS5Streamer-linux-x64.tar.gz .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -98,6 +128,32 @@ jobs:
           & "$env:QT_ROOT_DIR/bin/windeployqt.exe" `
             --release --no-translations --no-opengl-sw `
             dist/PS5Streamer.exe
+
+      - name: Bundle nginx-rtmp
+        shell: pwsh
+        working-directory: ${{ github.workspace }}
+        run: |
+          $zip = "nginx-rtmp-win64.zip"
+          Invoke-WebRequest -Uri $env:NGINX_WIN_URL -OutFile $zip
+          Expand-Archive -Path $zip -DestinationPath nginx-rtmp-extract -Force
+          $nginxExe = Get-ChildItem -Path nginx-rtmp-extract -Recurse -Filter nginx.exe |
+            Select-Object -First 1
+          if (-not $nginxExe) { throw "nginx.exe not found in downloaded archive" }
+          $srcRoot = $nginxExe.Directory.FullName
+          $dest = "qt/dist/Binaries"
+          New-Item -ItemType Directory -Force -Path $dest | Out-Null
+          Copy-Item "$srcRoot/nginx.exe" "$dest/nginx.exe"
+          foreach ($dir in @("conf", "logs", "temp", "html")) {
+            $from = Join-Path $srcRoot $dir
+            if (Test-Path $from) {
+              Copy-Item $from (Join-Path $dest $dir) -Recurse -Force
+            } else {
+              New-Item -ItemType Directory -Force -Path (Join-Path $dest $dir) | Out-Null
+            }
+          }
+          if (Test-Path THIRD_PARTY_NGINX.md) {
+            Copy-Item THIRD_PARTY_NGINX.md qt/dist/
+          }
 
       - name: Package zip
         shell: pwsh

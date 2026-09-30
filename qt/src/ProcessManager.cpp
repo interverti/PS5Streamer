@@ -22,12 +22,12 @@ QString ProcessManager::resolveNginxBin()
     const QString appDir = QCoreApplication::applicationDirPath();
     const QStringList candidates = {
 #ifdef Q_OS_WIN
-        appDir + QStringLiteral("/nginx.exe"),
         appDir + QStringLiteral("/Binaries/nginx.exe"),
+        appDir + QStringLiteral("/nginx.exe"),
         QStringLiteral("C:/nginx/nginx.exe"),
 #else
-        appDir + QStringLiteral("/nginx"),
         appDir + QStringLiteral("/Binaries/nginx"),
+        appDir + QStringLiteral("/nginx"),
         QStringLiteral("/usr/sbin/nginx"),
         QStringLiteral("/usr/bin/nginx"),
         QStringLiteral("/usr/local/sbin/nginx"),
@@ -74,6 +74,7 @@ void ProcessManager::startNginx(const QString &configPath)
 
     m_nginx = new QProcess(this);
     m_nginx->setProcessChannelMode(QProcess::MergedChannels);
+    m_nginx->setWorkingDirectory(QFileInfo(bin).absolutePath());
 
     connect(m_nginx, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, [this](int exitCode, QProcess::ExitStatus) {
