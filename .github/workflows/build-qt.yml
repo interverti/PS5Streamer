@@ -1,0 +1,111 @@
+name: Build Qt
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "qt/**"
+      - ".github/workflows/build-qt.yml"
+  pull_request:
+    paths:
+      - "qt/**"
+      - ".github/workflows/build-qt.yml"
+  workflow_dispatch:
+
+jobs:
+  linux:
+    name: Linux (Qt 5.15)
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: qt
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            ninja-build \
+            qtbase5-dev \
+            qt5-qmake \
+            libqt5widgets5 \
+            libqt5network5
+
+      - name: Configure
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=install
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Install
+        run: cmake --install build
+
+      - name: Package
+        run: |
+          mkdir -p dist
+          cp build/PS5Streamer dist/
+          tar -C dist -czf ../PS5Streamer-linux-x64.tar.gz PS5Streamer
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PS5Streamer-linux-x64
+          path: PS5Streamer-linux-x64.tar.gz
+
+  windows:
+    name: Windows (Qt 5.15)
+    runs-on: windows-2022
+    defaults:
+      run:
+        working-directory: qt
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt 5.15
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: "5.15.2"
+          host: windows
+          target: desktop
+          arch: win64_msvc2019_64
+          cache: true
+          extra: "--base https://mirrors.dotsrc.org/qtproject"
+
+      - name: Configure
+        shell: pwsh
+        run: |
+          cmake -S . -B build -G "Visual Studio 17 2022" -A x64 `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR"
+
+      - name: Build
+        shell: pwsh
+        run: cmake --build build --config Release
+
+      - name: Deploy Qt runtime
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item build/Release/PS5Streamer.exe dist/
+          & "$env:QT_ROOT_DIR/bin/windeployqt.exe" `
+            --release --no-translations --no-opengl-sw `
+            dist/PS5Streamer.exe
+
+      - name: Package zip
+        shell: pwsh
+        run: |
+          Compress-Archive -Path dist/* -DestinationPath ../PS5Streamer-windows-x64.zip -Force
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PS5Streamer-windows-x64
+          path: PS5Streamer-windows-x64.zip
