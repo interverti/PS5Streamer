@@ -50,8 +50,8 @@ MainWindow::MainWindow(AppController *controller, QWidget *parent)
     , m_controller(controller)
 {
     setWindowTitle(QStringLiteral("PS5 Streamer"));
-    setFixedWidth(340);
-    setMinimumHeight(420);
+    resize(460, 480);
+    setMinimumSize(420, 440);
 
     auto *central = new QWidget(this);
     auto *root = new QVBoxLayout(central);
@@ -61,15 +61,14 @@ MainWindow::MainWindow(AppController *controller, QWidget *parent)
     // ── Header (icon + title + Start) ───────────────────────────────────────
     auto *header = new QWidget;
     auto *headerLay = new QHBoxLayout(header);
-    headerLay->setContentsMargins(14, 12, 14, 12);
+    headerLay->setContentsMargins(16, 14, 16, 14);
     headerLay->setSpacing(10);
 
-    auto *icon = new QLabel(QStringLiteral("◉"));
-    QFont iconFont = icon->font();
-    iconFont.setPointSize(16);
-    iconFont.setBold(true);
-    icon->setFont(iconFont);
-    icon->setStyleSheet(QStringLiteral("color: #AF52DE;"));
+    // Drawn dot (no Unicode) so Windows fonts cannot mojibake the icon
+    auto *icon = new QLabel;
+    icon->setFixedSize(14, 14);
+    icon->setStyleSheet(QStringLiteral(
+        "background: #AF52DE; border-radius: 7px;"));
 
     auto *title = new QLabel(QStringLiteral("PS5 Streamer"));
     QFont titleFont = title->font();
@@ -78,11 +77,11 @@ MainWindow::MainWindow(AppController *controller, QWidget *parent)
     title->setFont(titleFont);
 
     m_toggleBtn = new QPushButton(QStringLiteral("Start"));
-    m_toggleBtn->setFixedWidth(58);
+    m_toggleBtn->setFixedWidth(72);
     m_toggleBtn->setCursor(Qt::PointingHandCursor);
     connect(m_toggleBtn, &QPushButton::clicked, this, &MainWindow::onToggle);
 
-    headerLay->addWidget(icon);
+    headerLay->addWidget(icon, 0, Qt::AlignVCenter);
     headerLay->addWidget(title);
     headerLay->addStretch();
     headerLay->addWidget(m_toggleBtn);
@@ -92,22 +91,21 @@ MainWindow::MainWindow(AppController *controller, QWidget *parent)
     // ── Services ────────────────────────────────────────────────────────────
     auto *services = new QWidget;
     auto *servicesLay = new QHBoxLayout(services);
-    servicesLay->setContentsMargins(14, 10, 14, 10);
-    servicesLay->setSpacing(20);
+    servicesLay->setContentsMargins(16, 12, 16, 12);
+    servicesLay->setSpacing(24);
 
     auto addStatus = [&](QLabel **dotOut, const QString &text) {
         auto *row = new QWidget;
         auto *lay = new QHBoxLayout(row);
         lay->setContentsMargins(0, 0, 0, 0);
-        lay->setSpacing(6);
-        auto *dot = new QLabel(QStringLiteral("●"));
-        QFont df = dot->font();
-        df.setPointSize(8);
-        dot->setFont(df);
+        lay->setSpacing(8);
+        auto *dot = new QLabel;
+        dot->setFixedSize(8, 8);
+        dot->setStyleSheet(QStringLiteral("background: #8E8E93; border-radius: 4px;"));
         auto *lab = new QLabel(text);
         lab->setFont(monoFont(12));
         lab->setStyleSheet(QStringLiteral("color: gray;"));
-        lay->addWidget(dot);
+        lay->addWidget(dot, 0, Qt::AlignVCenter);
         lay->addWidget(lab);
         servicesLay->addWidget(row);
         *dotOut = dot;
@@ -121,7 +119,7 @@ MainWindow::MainWindow(AppController *controller, QWidget *parent)
     // ── PS5 DNS ─────────────────────────────────────────────────────────────
     auto *dns = new QWidget;
     auto *dnsLay = new QVBoxLayout(dns);
-    dnsLay->setContentsMargins(14, 10, 14, 10);
+    dnsLay->setContentsMargins(16, 12, 16, 12);
     dnsLay->setSpacing(2);
     dnsLay->addWidget(sectionCaption(QStringLiteral("PS5 DNS")));
     m_ipValue = new QLabel;
@@ -134,7 +132,7 @@ MainWindow::MainWindow(AppController *controller, QWidget *parent)
     // ── mpv URL ─────────────────────────────────────────────────────────────
     auto *url = new QWidget;
     auto *urlLay = new QVBoxLayout(url);
-    urlLay->setContentsMargins(14, 10, 14, 10);
+    urlLay->setContentsMargins(16, 12, 16, 12);
     urlLay->setSpacing(6);
     urlLay->addWidget(sectionCaption(QStringLiteral("mpv URL")));
 
@@ -167,7 +165,7 @@ MainWindow::MainWindow(AppController *controller, QWidget *parent)
     // ── Log ─────────────────────────────────────────────────────────────────
     auto *log = new QWidget;
     auto *logLay = new QVBoxLayout(log);
-    logLay->setContentsMargins(14, 10, 14, 10);
+    logLay->setContentsMargins(16, 12, 16, 12);
     logLay->setSpacing(6);
 
     auto *logHeader = new QHBoxLayout;
@@ -200,7 +198,7 @@ MainWindow::MainWindow(AppController *controller, QWidget *parent)
     // ── Footer ──────────────────────────────────────────────────────────────
     auto *footer = new QWidget;
     auto *footerLay = new QHBoxLayout(footer);
-    footerLay->setContentsMargins(14, 10, 14, 10);
+    footerLay->setContentsMargins(16, 12, 16, 12);
     footerLay->addStretch();
     auto *quitBtn = new QPushButton(QStringLiteral("Quit"));
     quitBtn->setFlat(true);
@@ -291,7 +289,7 @@ void MainWindow::onToggle()
     }
 
     m_toggleBtn->setEnabled(false);
-    m_toggleBtn->setText(QStringLiteral("…"));
+    m_toggleBtn->setText(QStringLiteral("..."));
     m_controller->start();
 }
 
@@ -329,11 +327,9 @@ QColor MainWindow::statusColor(int status) const
 void MainWindow::setDotColor(QLabel *dot, int status)
 {
     const QColor c = statusColor(status);
-    const bool glow = static_cast<ServiceStatus>(status) == ServiceStatus::Running;
-    dot->setStyleSheet(QStringLiteral("color: %1;%2")
-                           .arg(c.name(),
-                                glow ? QStringLiteral(" text-shadow: 0 0 4px %1;").arg(c.name())
-                                     : QString()));
+    dot->setStyleSheet(QStringLiteral(
+        "background: %1; border-radius: 4px; min-width: 8px; max-width: 8px;"
+        " min-height: 8px; max-height: 8px;").arg(c.name()));
 }
 
 void MainWindow::refreshUI()
@@ -343,13 +339,13 @@ void MainWindow::refreshUI()
         || m_controller->dnsStatus() == ServiceStatus::Starting;
 
     m_toggleBtn->setEnabled(!starting);
-    m_toggleBtn->setText(starting ? QStringLiteral("…")
+    m_toggleBtn->setText(starting ? QStringLiteral("...")
                                   : (running ? QStringLiteral("Stop") : QStringLiteral("Start")));
     // Match Swift borderedProminent tint: purple start / red stop
     m_toggleBtn->setStyleSheet(QStringLiteral(
         "QPushButton {"
         "  background: %1; color: white; border: none; border-radius: 6px;"
-        "  padding: 4px 10px; font-weight: 600;"
+        "  padding: 6px 14px; font-weight: 600;"
         "}"
         "QPushButton:disabled { opacity: 0.6; }"
         ).arg(running ? QStringLiteral("#FF453A") : QStringLiteral("#AF52DE")));
@@ -367,12 +363,12 @@ void MainWindow::refreshUI()
         m_urlHint->hide();
     } else {
         m_urlRow->hide();
-        m_urlHint->setText(running ? QStringLiteral("Waiting for PS5…")
+        m_urlHint->setText(running ? QStringLiteral("Waiting for PS5...")
                                    : QStringLiteral("Start to get URL"));
         m_urlHint->show();
     }
 
     if (m_tray)
-        m_tray->setToolTip(running ? QStringLiteral("PS5 Streamer — Running")
+        m_tray->setToolTip(running ? QStringLiteral("PS5 Streamer - Running")
                                    : QStringLiteral("PS5 Streamer"));
 }

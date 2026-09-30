@@ -110,13 +110,12 @@ jobs:
           # Binaries/ filled by nginx step
           test -x dist/Binaries/nginx
           cp ../THIRD_PARTY_NGINX.md dist/ 2>/dev/null || true
-          tar -C dist -czf ../PS5Streamer-linux-x64.tar.gz .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: PS5Streamer-linux-x64
-          path: PS5Streamer-linux-x64.tar.gz
+          path: qt/dist/
 
   windows:
     name: Windows (Qt 5.15)
@@ -184,13 +183,8 @@ jobs:
             Copy-Item THIRD_PARTY_NGINX.md qt/dist/
           }
 
-      - name: Package zip
-        shell: pwsh
-        run: |
-          Compress-Archive -Path dist/* -DestinationPath ../PS5Streamer-windows-x64.zip -Force
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: PS5Streamer-windows-x64
-          path: PS5Streamer-windows-x64.zip
+          path: qt/dist/

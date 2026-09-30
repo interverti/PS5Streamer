@@ -55,10 +55,12 @@ Place an RTMP-enabled nginx in `Binaries/` next to the app, or use a CI artifact
 
 ### GitHub Actions
 
-Workflow [`.github/workflows/build-qt.yml`](.github/workflows/build-qt.yml) builds and **ships nginx-rtmp**:
+Workflow [`.github/workflows/build-qt.yml`](.github/workflows/build-qt.yml) builds and **ships nginx-rtmp**.
 
-- **Linux** → `PS5Streamer-linux-x64.tar.gz` (`PS5Streamer` + `Binaries/nginx`)
-- **Windows** → `PS5Streamer-windows-x64.zip` (`PS5Streamer.exe` + Qt runtime + `Binaries/nginx.exe`)
+Download the artifact from the Actions run — one unzip gives you the app ready to run:
+
+- **Linux** → `PS5Streamer-linux-x64.zip` containing `PS5Streamer` + `Binaries/`
+- **Windows** → `PS5Streamer-windows-x64.zip` containing `PS5Streamer.exe` + Qt DLLs + `Binaries/`
 ---
 
 ## macOS

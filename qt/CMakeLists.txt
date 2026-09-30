@@ -41,6 +41,11 @@ target_link_libraries(PS5Streamer PRIVATE
     Qt5::Network
 )
 
+if(MSVC)
+    # Source files are UTF-8; without this, QStringLiteral mojibake on Windows
+    target_compile_options(PS5Streamer PRIVATE /utf-8)
+endif()
+
 if(WIN32)
     target_compile_definitions(PS5Streamer PRIVATE PS5STREAMER_WINDOWS)
 elseif(UNIX AND NOT APPLE)

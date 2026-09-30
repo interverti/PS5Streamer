@@ -23,18 +23,18 @@ AppController::AppController(QObject *parent)
 
     connect(m_processManager, &ProcessManager::nginxStarted, this, [this]() {
         setRtmpStatus(ServiceStatus::Running);
-        log(QStringLiteral("✅ RTMP server running on :1935"));
+        log(QStringLiteral("[ok] RTMP server running on :1935"));
 
         // Start DNS after nginx is up
         setDnsStatus(ServiceStatus::Starting);
         QString dnsError;
         if (!m_dnsInterceptor->start(QHostAddress(m_localIP), &dnsError)) {
             setDnsStatus(ServiceStatus::Error, dnsError);
-            log(QStringLiteral("❌ DNS: %1").arg(dnsError));
+            log(QStringLiteral("[err] DNS: %1").arg(dnsError));
 #ifndef Q_OS_WIN
-            log(QStringLiteral("ℹ️ Port 53 needs root — relaunch with: sudo ./PS5Streamer"));
+            log(QStringLiteral("[i] Port 53 needs root - relaunch with: sudo ./PS5Streamer"));
 #else
-            log(QStringLiteral("ℹ️ Port 53 needs elevation — Run as administrator"));
+            log(QStringLiteral("[i] Port 53 needs elevation - Run as administrator"));
 #endif
             m_processManager->stopNginx();
             setRtmpStatus(ServiceStatus::Stopped);
@@ -42,16 +42,16 @@ AppController::AppController(QObject *parent)
             return;
         }
         setDnsStatus(ServiceStatus::Running);
-        log(QStringLiteral("✅ DNS interceptor running on :53"));
+        log(QStringLiteral("[ok] DNS interceptor running on :53"));
 
         m_running = true;
         emit runningChanged();
-        log(QStringLiteral("🚀 Ready — broadcast from PS5 via Twitch"));
+        log(QStringLiteral("[ok] Ready - broadcast from PS5 via Twitch"));
     });
 
     connect(m_processManager, &ProcessManager::nginxFailed, this, [this](const QString &msg) {
         setRtmpStatus(ServiceStatus::Error, msg);
-        log(QStringLiteral("❌ RTMP: %1").arg(msg));
+        log(QStringLiteral("[err] RTMP: %1").arg(msg));
         m_streamKeyServer->stop();
     });
 
@@ -61,8 +61,8 @@ AppController::AppController(QObject *parent)
         setRtmpStatus(ServiceStatus::Error, QStringLiteral("nginx crashed"));
         m_streamKey.clear();
         emit streamKeyChanged();
-        log(QStringLiteral("❌ nginx crashed — check %1").arg(Paths::nginxErrLog()));
-        log(QStringLiteral("ℹ️ Click Stop then Start to recover"));
+        log(QStringLiteral("[err] nginx crashed - check %1").arg(Paths::nginxErrLog()));
+        log(QStringLiteral("[i] Click Stop then Start to recover"));
     });
 
     connect(m_streamKeyServer, &StreamKeyServer::keyDetected, this,
@@ -70,11 +70,11 @@ AppController::AppController(QObject *parent)
                 m_streamApp = app;
                 m_streamKey = key;
                 emit streamKeyChanged();
-                log(QStringLiteral("🎮 PS5 connected via /%1/ — stream key detected").arg(app));
+                log(QStringLiteral("[ok] PS5 connected via /%1/ - stream key detected").arg(app));
             });
 
     connect(m_dnsInterceptor, &DnsInterceptor::queryLogged, this, [this](const QString &host) {
-        log(QStringLiteral("🔍 DNS spoof: %1 → %2").arg(host, m_localIP));
+        log(QStringLiteral("[dns] %1 -> %2").arg(host, m_localIP));
     });
 }
 
@@ -107,7 +107,7 @@ QString AppController::statusLabel(ServiceStatus status, const QString &error)
     case ServiceStatus::Stopped:
         return QStringLiteral("Stopped");
     case ServiceStatus::Starting:
-        return QStringLiteral("Starting…");
+        return QStringLiteral("Starting...");
     case ServiceStatus::Running:
         return QStringLiteral("Running");
     case ServiceStatus::Error:
@@ -145,7 +145,7 @@ void AppController::stop()
     setRtmpStatus(ServiceStatus::Stopped);
     emit runningChanged();
     emit streamKeyChanged();
-    log(QStringLiteral("⏹ Stopped — all services cleaned up"));
+    log(QStringLiteral("[stop] Stopped - all services cleaned up"));
 }
 
 void AppController::clearLogs()
